@@ -22,7 +22,7 @@ export default async function handler(req, res) {
         const [row] = await sql`
           INSERT INTO applicants
             (full_name, phone, email, city, experience_years, corpus_years,
-             current_role, portfolio_link, linkedin, motivation,
+             "current_role", portfolio_link, linkedin, motivation,
              expected_salary, available_from, relocate, interview_answers,
              interview_score, max_score, classification, completion_time_seconds)
           VALUES

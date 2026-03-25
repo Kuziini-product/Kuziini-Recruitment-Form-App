@@ -22,7 +22,7 @@ export async function initDb() {
       city TEXT DEFAULT '',
       experience_years TEXT DEFAULT '',
       corpus_years TEXT DEFAULT '',
-      current_role TEXT DEFAULT '',
+      "current_role" TEXT DEFAULT '',
       portfolio_link TEXT DEFAULT '',
       portfolio_file TEXT DEFAULT '',
       linkedin TEXT DEFAULT '',
