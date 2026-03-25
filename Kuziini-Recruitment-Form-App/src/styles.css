@@ -550,7 +550,6 @@ a:hover {
   width: 100%;
   height: auto;
   object-fit: contain;
-  /* Chrome metallic effect using mask + gradient background */
   -webkit-mask-image: url('/logo-kuziini.png');
   mask-image: url('/logo-kuziini.png');
   -webkit-mask-size: contain;
@@ -559,29 +558,34 @@ a:hover {
   mask-repeat: no-repeat;
   -webkit-mask-position: center;
   mask-position: center;
-  background: linear-gradient(
-    135deg,
-    #8e8e8e 0%,
-    #c0c0c0 15%,
-    #f5f5f5 25%,
-    #e8e8e8 30%,
-    #a0a0a0 40%,
-    #d4d4d4 50%,
-    #ffffff 55%,
-    #c8c8c8 60%,
-    #909090 70%,
-    #b8b8b8 80%,
-    #e0e0e0 90%,
-    #a8a8a8 100%
-  );
-  background-size: 200% 200%;
-  animation: chromeShift 6s ease-in-out infinite;
-  filter: contrast(1.2) brightness(1.1);
-}
-
-@keyframes chromeShift {
-  0%, 100% { background-position: 0% 0%; }
-  50% { background-position: 100% 100%; }
+  /* Brushed stainless steel / inox satinat */
+  background:
+    /* Horizontal brush lines */
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      rgba(255, 255, 255, 0.03) 1px,
+      transparent 2px,
+      rgba(0, 0, 0, 0.02) 3px,
+      transparent 4px
+    ),
+    /* Base metallic gradient */
+    linear-gradient(
+      160deg,
+      #7a7a7a 0%,
+      #a8a8a8 12%,
+      #c4c4c4 22%,
+      #b0b0b0 30%,
+      #9a9a9a 38%,
+      #bdbdbd 48%,
+      #d6d6d6 52%,
+      #b8b8b8 60%,
+      #a0a0a0 70%,
+      #c0c0c0 80%,
+      #aaaaaa 90%,
+      #8e8e8e 100%
+    );
+  filter: contrast(1.05) brightness(1.05);
 }
 
 .logo-flash {
@@ -598,76 +602,85 @@ a:hover {
   content: '';
   position: absolute;
   top: 0;
-  left: -100%;
-  width: 40%;
+  left: -120%;
+  width: 50%;
   height: 100%;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0) 20%,
-    rgba(255, 255, 255, 0.15) 40%,
-    rgba(255, 255, 255, 0.7) 50%,
-    rgba(255, 255, 255, 0.15) 60%,
-    rgba(255, 255, 255, 0) 80%,
+    rgba(255, 255, 255, 0) 25%,
+    rgba(255, 255, 255, 0.08) 38%,
+    rgba(255, 255, 255, 0.35) 48%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0.35) 52%,
+    rgba(255, 255, 255, 0.08) 62%,
+    rgba(255, 255, 255, 0) 75%,
     transparent 100%
   );
-  transform: skewX(-25deg);
-  animation: logoFlash 3.5s ease-in-out infinite;
+  transform: skewX(-18deg);
+  animation: logoFlash 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
-/* Secondary sparkle */
 .logo-flash::after {
   content: '';
   position: absolute;
   top: 0;
-  left: -100%;
-  width: 20%;
+  left: -120%;
+  width: 30%;
   height: 100%;
   background: linear-gradient(
     90deg,
     transparent 0%,
     rgba(255, 255, 255, 0) 30%,
-    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.2) 50%,
     rgba(255, 255, 255, 0) 70%,
     transparent 100%
   );
-  transform: skewX(-25deg);
-  animation: logoFlash2 3.5s ease-in-out infinite;
+  transform: skewX(-18deg);
+  animation: logoFlash2 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 @keyframes logoFlash {
-  0%, 100% {
-    left: -100%;
+  0% {
+    left: -120%;
     opacity: 0;
   }
-  5% {
+  8% {
     opacity: 1;
   }
-  35% {
-    left: 200%;
+  50% {
+    left: 220%;
     opacity: 1;
   }
-  36% {
+  58% {
+    opacity: 0;
+  }
+  100% {
+    left: 220%;
     opacity: 0;
   }
 }
 
 @keyframes logoFlash2 {
-  0%, 100% {
-    left: -100%;
+  0% {
+    left: -120%;
     opacity: 0;
   }
-  10% {
+  14% {
     opacity: 0;
   }
-  15% {
-    opacity: 0.8;
+  20% {
+    opacity: 0.7;
   }
-  45% {
+  56% {
     left: 250%;
-    opacity: 0.8;
+    opacity: 0.7;
   }
-  46% {
+  62% {
+    opacity: 0;
+  }
+  100% {
+    left: 250%;
     opacity: 0;
   }
 }
