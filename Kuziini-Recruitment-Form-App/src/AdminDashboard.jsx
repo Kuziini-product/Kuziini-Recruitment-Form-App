@@ -147,6 +147,7 @@ function ProfileCard({ applicant }) {
         {applicant.gender && <span className="ai-tag">👤 {applicant.gender}</span>}
         {applicant.has_cv && <span className="ai-tag ai-tag-good">📄 CV atasat</span>}
         {applicant.has_photo && <span className="ai-tag ai-tag-good">📷 Foto</span>}
+        {applicant.tour_visited && <span className="ai-tag ai-tag-good">🏠 Tur 360° ({applicant.tour_time_seconds > 0 ? `${Math.floor(applicant.tour_time_seconds/60)}m ${applicant.tour_time_seconds%60}s` : 'vizitat'})</span>}
         {applicant.attempt_number > 1 && <span className="ai-tag ai-tag-warn">🔄 Re-aplicare #{applicant.attempt_number}</span>}
       </div>
     </div>

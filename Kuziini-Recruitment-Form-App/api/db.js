@@ -53,6 +53,8 @@ export async function initDb() {
   if (!colNames.includes('has_photo')) await sql`ALTER TABLE applicants ADD COLUMN has_photo BOOLEAN DEFAULT false`
   if (!colNames.includes('ai_analysis')) await sql`ALTER TABLE applicants ADD COLUMN ai_analysis TEXT DEFAULT ''`
   if (!colNames.includes('attempt_number')) await sql`ALTER TABLE applicants ADD COLUMN attempt_number INTEGER DEFAULT 1`
+  if (!colNames.includes('tour_visited')) await sql`ALTER TABLE applicants ADD COLUMN tour_visited BOOLEAN DEFAULT false`
+  if (!colNames.includes('tour_time_seconds')) await sql`ALTER TABLE applicants ADD COLUMN tour_time_seconds INTEGER DEFAULT 0`
 }
 
 export function classifyApplicant(score, maxScore) {
@@ -97,6 +99,14 @@ export function analyzeApplicant(formData, answers) {
   if (allSame) traits.push('ATENTIE: Raspunsuri identice - posibil selectate la intamplare')
 
   // Check if always picked first option (after shuffle - would be random points)
+  // Tour visit
+  if (formData.tourVisited) {
+    const tourTime = formData.tourTimeSeconds || 0
+    if (tourTime > 120) { traits.push(`A explorat turul virtual ${Math.floor(tourTime/60)}m — interes real pentru spatiul Kuziini`); profile.score += 3 }
+    else if (tourTime > 30) { traits.push('A vizitat turul virtual — curiozitate activa'); profile.score += 1 }
+    else { traits.push('A deschis turul virtual dar a stat putin — curiozitate superficiala') }
+  }
+
   const hasWrittenMotivation = (formData.motivation || '').length > 100
   if (hasWrittenMotivation) traits.push('Motivatie detaliata - candidat serios si implicat')
 

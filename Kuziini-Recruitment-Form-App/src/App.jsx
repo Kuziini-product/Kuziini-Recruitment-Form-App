@@ -176,9 +176,31 @@ export default function App() {
   const [result, setResult] = useState(null)
   const [photoFile, setPhotoFile] = useState(null)
   const [cvFile, setCvFile] = useState(null)
+  const [tourVisited, setTourVisited] = useState(false)
+  const [tourTimeSeconds, setTourTimeSeconds] = useState(0)
+  const tourStartRef = useRef(null)
   const photoInputRef = useRef(null)
   const cvInputRef = useRef(null)
   const startTimeRef = useRef(Date.now())
+
+  // Track when user returns from tour
+  useEffect(() => {
+    function onFocus() {
+      if (tourStartRef.current) {
+        const elapsed = Math.round((Date.now() - tourStartRef.current) / 1000)
+        setTourTimeSeconds(prev => prev + elapsed)
+        tourStartRef.current = null
+      }
+    }
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
+  }, [])
+
+  function openTour() {
+    setTourVisited(true)
+    tourStartRef.current = Date.now()
+    window.open('https://www.kuziini.ro/tur360/?startscene=0&startlookat=284.26,-2.18,119.19,0,0;', '_blank')
+  }
 
   const completion = useMemo(() => {
     const fields = ['fullName', 'phone', 'email', 'city', 'experienceYears', 'corpusYears', 'currentRole', 'portfolio', 'linkedin', 'motivation', 'expectedSalary', 'availableFrom']
@@ -361,7 +383,7 @@ export default function App() {
         <CursorGlow />
         <MusicPlayer genre={form.musicGenre} />
         <MiniInterview
-          formData={{ ...form, hasCv: !!cvFile, hasPhoto: !!photoFile }}
+          formData={{ ...form, hasCv: !!cvFile, hasPhoto: !!photoFile, tourVisited, tourTimeSeconds }}
           cvFile={cvFile}
           startTime={startTimeRef.current}
           onComplete={handleInterviewComplete}
@@ -579,8 +601,7 @@ export default function App() {
             </Reveal>
 
             <Reveal>
-              <a href="https://www.kuziini.ro/tur360/?startscene=0&startlookat=284.26,-2.18,119.19,0,0;"
-                target="_blank" rel="noreferrer" className="experience-btn-card">
+              <div className="experience-btn-card" onClick={openTour} role="button" tabIndex={0}>
                 <div className="experience-bg" />
                 <div className="experience-overlay" />
                 <div className="experience-card-content">
@@ -588,9 +609,14 @@ export default function App() {
                     <img src="/logo-kuziini.png" alt="" />
                   </div>
                   <strong className="experience-card-title">Intra in universul Kuziini</strong>
+                  {tourVisited && (
+                    <span className="tour-visited-badge">
+                      Vizitat {tourTimeSeconds > 0 ? `(${Math.floor(tourTimeSeconds/60)}m ${tourTimeSeconds%60}s)` : ''}
+                    </span>
+                  )}
                   <span className="experience-card-finger">&#9757;</span>
                 </div>
-              </a>
+              </div>
             </Reveal>
 
             <Reveal>

@@ -33,6 +33,7 @@ export default async function handler(req, res) {
             (full_name, phone, email, gender, music_genre, city, experience_years, corpus_years,
              "current_role", portfolio_link, linkedin, motivation,
              expected_salary, available_from, relocate, has_cv, has_photo,
+             tour_visited, tour_time_seconds,
              interview_answers, interview_score, max_score, classification, ai_analysis,
              completion_time_seconds, attempt_number)
           VALUES
@@ -42,6 +43,7 @@ export default async function handler(req, res) {
              ${formData.currentRole || ''}, ${formData.portfolio || ''}, ${formData.linkedin || ''},
              ${formData.motivation}, ${formData.expectedSalary || ''}, ${formData.availableFrom || ''},
              ${!!formData.relocate}, ${!!formData.hasCv}, ${!!formData.hasPhoto},
+             ${!!formData.tourVisited}, ${formData.tourTimeSeconds || 0},
              ${JSON.stringify(interviewAnswers)}, ${interviewScore}, ${maxScore},
              ${classification}, ${aiAnalysis}, ${completionTimeSeconds || 0}, ${attemptNumber})
           RETURNING id

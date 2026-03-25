@@ -645,6 +645,23 @@ a:hover {
   margin-bottom: 4px;
 }
 
+.tour-visited-badge {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 4px 14px;
+  background: rgba(22, 163, 74, 0.2);
+  border: 1px solid rgba(22, 163, 74, 0.4);
+  border-radius: 20px;
+  font-size: 0.7rem;
+  color: #86efac;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.experience-btn-card {
+  cursor: pointer;
+}
+
 .experience-card-finger {
   position: absolute;
   top: 14px;
