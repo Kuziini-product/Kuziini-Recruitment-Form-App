@@ -274,8 +274,12 @@ export default function App() {
     if (!form.phone.trim()) e.phone = 'Telefonul este obligatoriu.'
     if (!form.email.trim()) e.email = 'Email-ul este obligatoriu.'
     if (!form.gender) e.gender = 'Selecteaza genul.'
+    if (!form.city.trim()) e.city = 'Orasul este obligatoriu.'
     if (!form.experienceYears.trim()) e.experienceYears = 'Experienta totala este obligatorie.'
     if (!form.corpusYears.trim()) e.corpusYears = 'Experienta in Corpus este obligatorie.'
+    if (!form.currentRole.trim()) e.currentRole = 'Rolul actual este obligatoriu.'
+    if (!form.availableFrom.trim()) e.availableFrom = 'Disponibilitatea este obligatorie.'
+    if (!form.expectedSalary.trim()) e.expectedSalary = 'Salariul dorit este obligatoriu.'
     if (!form.motivation.trim()) e.motivation = 'Motivatia este obligatorie.'
     if (!form.gdpr) e.gdpr = 'Acordul GDPR este obligatoriu.'
     setErrors(e)
@@ -284,7 +288,14 @@ export default function App() {
 
   function handleSubmit(event) {
     event.preventDefault()
-    if (!validate()) return
+    if (!validate()) {
+      // Scroll to first error
+      setTimeout(() => {
+        const firstErr = document.querySelector('.error')
+        if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 100)
+      return
+    }
     // If no CV attached, show CV prompt
     if (!cvFile && !form.portfolio.trim()) {
       setStep('cvPrompt')
@@ -447,7 +458,8 @@ export default function App() {
             <Reveal>
               <section className="card success-card">
                 <div className="success-icon">&#10003;</div>
-                <h1>Multumim, {form.fullName}!</h1>
+                <h1 className="success-thanks">Multumim!</h1>
+                <h2 className="success-name">{form.fullName}</h2>
                 <div className="gold-line" style={{ margin: '20px auto 28px' }} />
                 <p className="success-message">
                   Echipa <strong>Vali Kuziini</strong> iti multumeste ca ai aplicat pentru pozitia de
@@ -540,7 +552,7 @@ export default function App() {
                 </div>
 
                 <div className="two-cols">
-                  <Field label="Oras">
+                  <Field label="Oras" required error={errors.city}>
                     <input value={form.city} onChange={(e) => updateField('city', e.target.value)} placeholder="Bucuresti" />
                   </Field>
                   <Field label="Experienta totala in mobilier (ani)" required error={errors.experienceYears}>
@@ -555,10 +567,10 @@ export default function App() {
                 </div>
 
                 <div className="two-cols">
-                  <Field label="Rol actual">
+                  <Field label="Rol actual" required error={errors.currentRole}>
                     <input value={form.currentRole} onChange={(e) => updateField('currentRole', e.target.value)} placeholder="Proiectant mobilier senior" />
                   </Field>
-                  <Field label="Disponibil din">
+                  <Field label="Disponibil din" required error={errors.availableFrom}>
                     <input value={form.availableFrom} onChange={(e) => updateField('availableFrom', e.target.value)} placeholder="Imediat / 30 zile" />
                   </Field>
                 </div>
@@ -588,7 +600,7 @@ export default function App() {
                   </div>
                 </Field>
 
-                <Field label="Salariu net dorit">
+                <Field label="Salariu net dorit" required error={errors.expectedSalary}>
                   <input value={form.expectedSalary} onChange={(e) => updateField('expectedSalary', e.target.value)} placeholder="4800 RON" />
                 </Field>
 

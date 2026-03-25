@@ -1021,6 +1021,15 @@ textarea {
   font-weight: 400;
 }
 
+/* Input with error - red border */
+.field:has(.error) input,
+.field:has(.error) textarea,
+.field:has(.error) .gender-selector,
+.field:has(.error) .photo-upload {
+  border-color: var(--red-accent) !important;
+  box-shadow: 0 0 0 1px var(--red-accent) inset;
+}
+
 /* ══════════════════════════════════════════
    BUTTONS
    ══════════════════════════════════════════ */
@@ -1129,6 +1138,21 @@ textarea {
 .success-card h1 {
   font-size: 2.4rem;
   margin-bottom: 12px;
+}
+
+.success-thanks {
+  font-size: 2.8rem !important;
+  margin-bottom: 20px !important;
+  color: var(--gold) !important;
+}
+
+.success-name {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: var(--white);
+  margin: 0 0 8px;
+  letter-spacing: 0.02em;
 }
 
 .success-card p {
