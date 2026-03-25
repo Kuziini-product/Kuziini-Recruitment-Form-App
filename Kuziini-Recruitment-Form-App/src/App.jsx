@@ -2,12 +2,24 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import MiniInterview from './MiniInterview'
 import AdminDashboard from './AdminDashboard'
 
-// ── Music genres with YouTube IDs (configurable in admin settings) ──
-const DEFAULT_GENRES = [
-  { id: 'classical', label: 'Clasica', icon: '🎻', ytId: 'hN_q-_nGv4U', start: 48 },
-  { id: 'lofi', label: 'Lo-Fi', icon: '🎧', ytId: '5qap5aO4i9A', start: 0 },
-  { id: 'jazz', label: 'Jazz', icon: '🎷', ytId: 'Dx5qFachd3A', start: 0 },
-]
+// ── Extract YouTube video ID from URL or plain ID ──
+function extractYtId(input) {
+  if (!input) return null
+  // Already a plain ID
+  if (/^[a-zA-Z0-9_-]{11}$/.test(input)) return input
+  // URL formats
+  const m = input.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/)
+  return m ? m[1] : input
+}
+
+// ── Music genres (reads localStorage for custom YouTube links) ──
+function getGenres() {
+  return [
+    { id: 'classical', label: 'Clasica', icon: '🎻', ytId: extractYtId(localStorage.getItem('kuziini_music_classical')) || 'hN_q-_nGv4U', start: 48 },
+    { id: 'lofi', label: 'Lo-Fi', icon: '🎧', ytId: extractYtId(localStorage.getItem('kuziini_music_lofi')) || '5qap5aO4i9A', start: 0 },
+    { id: 'jazz', label: 'Jazz', icon: '🎷', ytId: extractYtId(localStorage.getItem('kuziini_music_jazz')) || 'Dx5qFachd3A', start: 0 },
+  ]
+}
 
 const initialForm = {
   musicGenre: '',
@@ -36,7 +48,7 @@ function MusicPlayer({ genre }) {
 
   useEffect(() => {
     if (!genre) return
-    const g = DEFAULT_GENRES.find((gg) => gg.id === genre)
+    const g = getGenres().find((gg) => gg.id === genre)
     if (!g) return
 
     function create() {
@@ -378,7 +390,7 @@ export default function App() {
                 {/* ── Music Genre Selector ── */}
                 <Field label="Ce gen de muzica te inspira?" required={false}>
                   <div className="genre-selector">
-                    {DEFAULT_GENRES.map((g) => (
+                    {getGenres().map((g) => (
                       <button
                         key={g.id}
                         type="button"

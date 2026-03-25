@@ -180,13 +180,19 @@ export default function AdminDashboard({ onExit }) {
   const [loading, setLoading] = useState(true)
 
   // Settings
-  const [notifEmail, setNotifEmail] = useState(() => localStorage.getItem('kuziini_notif_email') || 'my@kuziini.com')
+  const [notifEmail, setNotifEmail] = useState(() => localStorage.getItem('kuziini_notif_email') || 'my@kuziini.ro')
   const [notifPhone, setNotifPhone] = useState(() => localStorage.getItem('kuziini_notif_phone') || '0723333221')
+  const [musicClassical, setMusicClassical] = useState(() => localStorage.getItem('kuziini_music_classical') || 'https://www.youtube.com/watch?v=hN_q-_nGv4U')
+  const [musicLofi, setMusicLofi] = useState(() => localStorage.getItem('kuziini_music_lofi') || 'https://www.youtube.com/watch?v=5qap5aO4i9A')
+  const [musicJazz, setMusicJazz] = useState(() => localStorage.getItem('kuziini_music_jazz') || 'https://www.youtube.com/watch?v=Dx5qFachd3A')
   const [settingsSaved, setSettingsSaved] = useState(false)
 
   function saveSettings() {
     localStorage.setItem('kuziini_notif_email', notifEmail)
     localStorage.setItem('kuziini_notif_phone', notifPhone)
+    localStorage.setItem('kuziini_music_classical', musicClassical)
+    localStorage.setItem('kuziini_music_lofi', musicLofi)
+    localStorage.setItem('kuziini_music_jazz', musicJazz)
     setSettingsSaved(true)
     setTimeout(() => setSettingsSaved(false), 3000)
   }
@@ -463,17 +469,18 @@ export default function AdminDashboard({ onExit }) {
           )}
         </div>
 
-        {/* ════════ SETARI NOTIFICARI ════════ */}
+        {/* ════════ SETARI ════════ */}
         <div className="admin-card">
-          <h2>Setari notificari</h2>
+          <h2>Setari</h2>
           <div className="admin-settings">
+            <h3 className="settings-section-title">Notificari</h3>
             <div className="settings-row">
               <label>Email notificari</label>
               <input
                 type="email"
                 value={notifEmail}
                 onChange={(e) => setNotifEmail(e.target.value)}
-                placeholder="my@kuziini.com"
+                placeholder="my@kuziini.ro"
               />
             </div>
             <div className="settings-row">
@@ -485,7 +492,37 @@ export default function AdminDashboard({ onExit }) {
                 placeholder="0723333221"
               />
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', marginTop: 8 }}>
+
+            <h3 className="settings-section-title" style={{ marginTop: 24 }}>Melodii pe gen muzical (link YouTube)</h3>
+            <div className="settings-row">
+              <label>🎻 Clasica</label>
+              <input
+                type="url"
+                value={musicClassical}
+                onChange={(e) => setMusicClassical(e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=..."
+              />
+            </div>
+            <div className="settings-row">
+              <label>🎧 Lo-Fi</label>
+              <input
+                type="url"
+                value={musicLofi}
+                onChange={(e) => setMusicLofi(e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=..."
+              />
+            </div>
+            <div className="settings-row">
+              <label>🎷 Jazz</label>
+              <input
+                type="url"
+                value={musicJazz}
+                onChange={(e) => setMusicJazz(e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=..."
+              />
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', marginTop: 16 }}>
               <button className="btn btn-primary" onClick={saveSettings} style={{ padding: '12px 28px' }}>
                 Salveaza setarile
               </button>

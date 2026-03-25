@@ -2479,6 +2479,17 @@ body.admin-active::after {
   box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.15);
 }
 
+.settings-section-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #374151;
+  margin: 0 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
 .settings-saved {
   display: inline-block;
   padding: 6px 16px;
