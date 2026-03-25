@@ -12,6 +12,7 @@ const DEFAULT_GENRES = [
 const initialForm = {
   musicGenre: '',
   gender: '',
+  age: '',
   fullName: '',
   phone: '',
   email: '',
@@ -194,6 +195,7 @@ export default function App() {
   function validate() {
     const e = {}
     if (!form.fullName.trim()) e.fullName = 'Numele complet este obligatoriu.'
+    if (!form.age.trim()) e.age = 'Varsta este obligatorie.'
     if (!form.phone.trim()) e.phone = 'Telefonul este obligatoriu.'
     if (!form.email.trim()) e.email = 'Email-ul este obligatoriu.'
     if (!form.gender) e.gender = 'Selecteaza genul.'
@@ -424,24 +426,30 @@ export default function App() {
                   <Field label="Nume complet" required error={errors.fullName}>
                     <input value={form.fullName} onChange={(e) => updateField('fullName', e.target.value)} placeholder="Andrei Popescu" />
                   </Field>
+                  <Field label="Varsta" required error={errors.age}>
+                    <input type="number" min="18" max="65" value={form.age} onChange={(e) => updateField('age', e.target.value)} placeholder="28" />
+                  </Field>
+                </div>
+
+                <div className="two-cols">
                   <Field label="Telefon" required error={errors.phone}>
                     <input value={form.phone} onChange={(e) => updateField('phone', e.target.value)} placeholder="07xx xxx xxx" />
                   </Field>
-                </div>
-
-                <div className="two-cols">
                   <Field label="Email" required error={errors.email}>
                     <input type="email" value={form.email} onChange={(e) => updateField('email', e.target.value)} placeholder="nume@email.com" />
                   </Field>
+                </div>
+
+                <div className="two-cols">
                   <Field label="Oras">
                     <input value={form.city} onChange={(e) => updateField('city', e.target.value)} placeholder="Bucuresti" />
+                  </Field>
+                  <Field label="Experienta totala in mobilier (ani)" required error={errors.experienceYears}>
+                    <input value={form.experienceYears} onChange={(e) => updateField('experienceYears', e.target.value)} placeholder="4" />
                   </Field>
                 </div>
 
                 <div className="two-cols">
-                  <Field label="Experienta totala in mobilier (ani)" required error={errors.experienceYears}>
-                    <input value={form.experienceYears} onChange={(e) => updateField('experienceYears', e.target.value)} placeholder="4" />
-                  </Field>
                   <Field label="Experienta in Corpus Solutions (ani)" required error={errors.corpusYears}>
                     <input value={form.corpusYears} onChange={(e) => updateField('corpusYears', e.target.value)} placeholder="2" />
                   </Field>
