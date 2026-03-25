@@ -618,8 +618,8 @@ a:hover {
 }
 
 .experience-spinning-logo {
-  width: 56px;
-  height: 56px;
+  width: 124px;
+  height: 124px;
   margin-bottom: 14px;
   animation: spinLogo 12s linear infinite;
 }
