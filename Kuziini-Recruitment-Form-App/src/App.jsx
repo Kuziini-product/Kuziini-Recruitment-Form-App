@@ -256,7 +256,7 @@ export default function App() {
   // Music player rendered always (never unmounts)
   const musicPlayer = <MusicPlayer genre={form.musicGenre} />
 
-  if (isAdmin) return <AdminDashboard onExit={logoutAdmin} />
+  if (isAdmin) return <AdminDashboard onExit={logoutAdmin} onHome={() => setIsAdmin(false)} />
 
   const loginModal = showLogin && (
     <AdminLogin onSuccess={loginAdmin} onCancel={() => setShowLogin(false)} />

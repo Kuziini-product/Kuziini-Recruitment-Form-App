@@ -166,7 +166,7 @@ function StatCard({ label, value, sub, color }) {
   )
 }
 
-export default function AdminDashboard({ onExit }) {
+export default function AdminDashboard({ onExit, onHome }) {
   useEffect(() => {
     document.body.classList.add('admin-active')
     return () => document.body.classList.remove('admin-active')
@@ -336,7 +336,8 @@ export default function AdminDashboard({ onExit }) {
               <span className="notif-active-badge">🔔 Notificari active</span>
             )}
             <button className="btn btn-small" onClick={loadData}>Reincarca</button>
-            {onExit && <button className="btn btn-small" onClick={onExit}>Deconectare</button>}
+            {onHome && <button className="btn btn-small" onClick={onHome}>🏠 Home</button>}
+            {onExit && <button className="btn btn-small" onClick={onExit}>🚪 Deconectare</button>}
           </div>
         </div>
 
