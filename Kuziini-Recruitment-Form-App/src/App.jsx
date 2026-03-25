@@ -614,7 +614,10 @@ export default function App() {
                       Vizitat {tourTimeSeconds > 0 ? `(${Math.floor(tourTimeSeconds/60)}m ${tourTimeSeconds%60}s)` : ''}
                     </span>
                   )}
-                  <span className="experience-card-finger">&#9757;</span>
+                  <span className="experience-card-finger">
+                    <span className="finger-hand">&#128072;</span>
+                    <span className="finger-sparkle">&#10024;</span>
+                  </span>
                 </div>
               </div>
             </Reveal>
