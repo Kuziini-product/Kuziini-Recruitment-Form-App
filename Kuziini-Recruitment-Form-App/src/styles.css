@@ -855,6 +855,35 @@ textarea {
   margin-bottom: 36px;
 }
 
+.question-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.back-arrow {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--steel);
+  color: var(--silver);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 4px;
+  padding: 0;
+  line-height: 1;
+}
+
+.back-arrow:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
 .question-text {
   font-family: var(--font-display);
   font-size: 1.4rem;
@@ -862,6 +891,7 @@ textarea {
   margin: 0 0 28px;
   line-height: 1.4;
   color: var(--white);
+  text-align: left;
 }
 
 .options-list {
@@ -944,7 +974,7 @@ textarea {
 /* Interview footer */
 .interview-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   gap: 16px;
   padding-top: 12px;
 }

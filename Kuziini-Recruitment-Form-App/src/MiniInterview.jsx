@@ -341,7 +341,12 @@ export default function MiniInterview({ formData, startTime, onComplete, onBack 
           </div>
 
           <div className="interview-question">
-            <h2 className="question-text">{q.question}</h2>
+            <div className="question-row">
+              <button className="back-arrow" onClick={handlePrev} type="button" title={currentQ === 0 ? 'Inapoi la formular' : 'Inapoi'}>
+                &#8592;
+              </button>
+              <h2 className="question-text">{q.question}</h2>
+            </div>
 
             {isHeartsQ ? (
               <HeartsRating
@@ -369,9 +374,6 @@ export default function MiniInterview({ formData, startTime, onComplete, onBack 
           {error && <div className="error interview-error">{error}</div>}
 
           <div className="interview-footer">
-            <button className="btn btn-secondary" onClick={handlePrev} type="button">
-              {currentQ === 0 ? 'Inapoi la formular' : 'Inapoi'}
-            </button>
             <button
               className="btn btn-primary"
               onClick={handleNext}
