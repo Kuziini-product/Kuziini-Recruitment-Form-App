@@ -28,7 +28,7 @@ export default function AudioPlayer() {
         height: 180,
         videoId: YOUTUBE_VIDEO_ID,
         playerVars: {
-          autoplay: 0,
+          autoplay: 1,
           controls: 0,
           disablekb: 1,
           fs: 0,
@@ -41,7 +41,21 @@ export default function AudioPlayer() {
         events: {
           onReady: () => {
             playerRef.current.setVolume(0)
+            playerRef.current.seekTo(START_SECONDS, true)
+            playerRef.current.playVideo()
+            // Auto fade in
+            let vol = 0
+            fadeInterval.current = setInterval(() => {
+              vol += 1
+              if (vol >= 50) {
+                vol = 50
+                clearInterval(fadeInterval.current)
+              }
+              try { playerRef.current.setVolume(vol) } catch {}
+            }, 60)
             setReady(true)
+            setPlaying(true)
+            setTimeout(() => setVisible(false), 5000)
           },
           onStateChange: (e) => {
             // When video ends and loops, seek back to start point
