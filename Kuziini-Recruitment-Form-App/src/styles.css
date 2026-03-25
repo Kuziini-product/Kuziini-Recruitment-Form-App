@@ -1141,6 +1141,17 @@ textarea {
    ADMIN DASHBOARD (dark luxury variant)
    ══════════════════════════════════════════ */
 
+/* ── Admin body override ── */
+
+body.admin-active {
+  background: #f0f1f3 !important;
+}
+
+body.admin-active::before,
+body.admin-active::after {
+  display: none !important;
+}
+
 /* ── Admin Login Modal ── */
 
 .admin-login-overlay {

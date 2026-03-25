@@ -34,6 +34,11 @@ function ScoreBar({ pct, classification }) {
 }
 
 export default function AdminDashboard({ onExit }) {
+  // Force body to light when admin is shown
+  useEffect(() => {
+    document.body.classList.add('admin-active')
+    return () => document.body.classList.remove('admin-active')
+  }, [])
   const [stats, setStats] = useState(null)
   const [applicants, setApplicants] = useState([])
   const [best, setBest] = useState(null)
