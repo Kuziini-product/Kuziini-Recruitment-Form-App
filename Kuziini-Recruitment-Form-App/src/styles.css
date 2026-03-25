@@ -321,6 +321,70 @@ a:hover {
   font-weight: 700;
 }
 
+/* ── Logo with flash ── */
+
+.logo-wrap {
+  position: relative;
+  display: inline-block;
+  margin-bottom: var(--space-lg);
+}
+
+.logo-img {
+  display: block;
+  max-height: 80px;
+  width: auto;
+  object-fit: contain;
+  filter: brightness(1.1);
+}
+
+.logo-flash {
+  position: absolute;
+  top: -20%;
+  left: -10%;
+  width: 120%;
+  height: 140%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.logo-flash::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(201, 168, 76, 0) 30%,
+    rgba(201, 168, 76, 0.4) 50%,
+    rgba(255, 255, 255, 0.6) 52%,
+    rgba(201, 168, 76, 0.4) 54%,
+    rgba(201, 168, 76, 0) 70%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  animation: logoFlash 4s ease-in-out infinite;
+}
+
+@keyframes logoFlash {
+  0%, 100% {
+    left: -100%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  40% {
+    left: 200%;
+    opacity: 1;
+  }
+  41% {
+    opacity: 0;
+  }
+}
+
 /* ── Hero Typography ── */
 
 h1 {

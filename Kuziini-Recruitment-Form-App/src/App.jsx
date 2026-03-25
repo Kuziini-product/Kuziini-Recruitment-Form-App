@@ -262,6 +262,10 @@ export default function App() {
             </Reveal>
 
             <Reveal delay={1}>
+              <div className="logo-wrap">
+                <img src="/logo-kuziini.png" alt="Kuziini" className="logo-img" />
+                <div className="logo-flash" />
+              </div>
               <h1>Aplica pentru rolul de Proiectant Mobilier</h1>
             </Reveal>
 

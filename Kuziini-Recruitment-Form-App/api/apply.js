@@ -1,4 +1,4 @@
-import { getDb, initDb, classifyApplicant, formatTime } from './db.js'
+import { classifyApplicant } from './db.js'
 import nodemailer from 'nodemailer'
 
 export default async function handler(req, res) {
@@ -7,27 +7,37 @@ export default async function handler(req, res) {
   }
 
   try {
-    await initDb()
-    const sql = getDb()
-
     const { formData, interviewAnswers, interviewScore, maxScore, completionTimeSeconds } = req.body
     const { classification, label } = classifyApplicant(interviewScore, maxScore)
 
-    const [row] = await sql`
-      INSERT INTO applicants
-        (full_name, phone, email, city, experience_years, corpus_years,
-         current_role, portfolio_link, linkedin, motivation,
-         expected_salary, available_from, relocate, interview_answers,
-         interview_score, max_score, classification, completion_time_seconds)
-      VALUES
-        (${formData.fullName}, ${formData.phone}, ${formData.email},
-         ${formData.city || ''}, ${formData.experienceYears}, ${formData.corpusYears},
-         ${formData.currentRole || ''}, ${formData.portfolio || ''}, ${formData.linkedin || ''},
-         ${formData.motivation}, ${formData.expectedSalary || ''}, ${formData.availableFrom || ''},
-         ${!!formData.relocate}, ${JSON.stringify(interviewAnswers)},
-         ${interviewScore}, ${maxScore}, ${classification}, ${completionTimeSeconds || 0})
-      RETURNING id
-    `
+    let insertedId = null
+
+    // Try to save to database (if DATABASE_URL is configured)
+    if (process.env.DATABASE_URL) {
+      try {
+        const { getDb, initDb } = await import('./db.js')
+        await initDb()
+        const sql = getDb()
+        const [row] = await sql`
+          INSERT INTO applicants
+            (full_name, phone, email, city, experience_years, corpus_years,
+             current_role, portfolio_link, linkedin, motivation,
+             expected_salary, available_from, relocate, interview_answers,
+             interview_score, max_score, classification, completion_time_seconds)
+          VALUES
+            (${formData.fullName}, ${formData.phone}, ${formData.email},
+             ${formData.city || ''}, ${formData.experienceYears}, ${formData.corpusYears},
+             ${formData.currentRole || ''}, ${formData.portfolio || ''}, ${formData.linkedin || ''},
+             ${formData.motivation}, ${formData.expectedSalary || ''}, ${formData.availableFrom || ''},
+             ${!!formData.relocate}, ${JSON.stringify(interviewAnswers)},
+             ${interviewScore}, ${maxScore}, ${classification}, ${completionTimeSeconds || 0})
+          RETURNING id
+        `
+        insertedId = row.id
+      } catch (dbErr) {
+        console.error('DB save failed (continuing with email):', dbErr.message)
+      }
+    }
 
     // Send email
     try {
@@ -59,12 +69,12 @@ export default async function handler(req, res) {
       const previewUrl = nodemailer.getTestMessageUrl(info)
       if (previewUrl) console.log('Email preview:', previewUrl)
     } catch (emailErr) {
-      console.error('Email failed (applicant saved):', emailErr.message)
+      console.error('Email failed:', emailErr.message)
     }
 
     res.json({
       success: true,
-      id: row.id,
+      id: insertedId,
       classification,
       classificationLabel: label,
       score: interviewScore,
