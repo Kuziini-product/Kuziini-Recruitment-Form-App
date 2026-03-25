@@ -291,6 +291,79 @@ a:hover {
   font-weight: 700;
 }
 
+/* ── Experience 360 button ── */
+
+.experience-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #1a1a1a, #252525);
+  border: 1px solid var(--gold);
+  border-radius: 2px;
+  color: var(--cream);
+  text-decoration: none;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.experience-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 30%, rgba(201, 168, 76, 0.1) 50%, transparent 70%);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.experience-btn:hover::before {
+  transform: translateX(100%);
+}
+
+.experience-btn:hover {
+  border-color: var(--gold-light);
+  box-shadow: 0 0 30px rgba(201, 168, 76, 0.15);
+  transform: translateY(-2px);
+  color: var(--white);
+}
+
+.experience-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.experience-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.experience-text strong {
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--gold);
+}
+
+.experience-text span {
+  font-size: 0.75rem;
+  color: var(--silver);
+  margin-top: 2px;
+}
+
+.experience-arrow {
+  font-size: 1.2rem;
+  color: var(--gold);
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.experience-btn:hover .experience-arrow {
+  transform: translate(3px, -3px);
+}
+
 /* ── Logo with flash ── */
 
 .logo-wrap {

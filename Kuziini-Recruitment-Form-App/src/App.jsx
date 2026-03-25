@@ -438,6 +438,22 @@ export default function App() {
             </Reveal>
 
             <Reveal delay={4}>
+              <a
+                href="https://www.kuziini.ro/tur360/?startscene=0&startlookat=284.26,-2.18,119.19,0,0;"
+                target="_blank"
+                rel="noreferrer"
+                className="experience-btn"
+              >
+                <span className="experience-icon">&#127760;</span>
+                <span className="experience-text">
+                  <strong>Experienta 360</strong>
+                  <span>Exploreaza showroom-ul Kuziini</span>
+                </span>
+                <span className="experience-arrow">&#8599;</span>
+              </a>
+            </Reveal>
+
+            <Reveal delay={4}>
               <section className="card side-card">
                 <h2
                   onClick={tryAdminAccess}
