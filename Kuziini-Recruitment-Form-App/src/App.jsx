@@ -584,9 +584,10 @@ export default function App() {
                 <div className="experience-bg" />
                 <div className="experience-overlay" />
                 <div className="experience-card-content">
-                  <span className="experience-card-icon">&#127760;</span>
+                  <div className="experience-spinning-logo">
+                    <img src="/logo-kuziini.png" alt="" />
+                  </div>
                   <strong className="experience-card-title">Intra in universul Kuziini</strong>
-                  <span className="experience-card-sub">Tur virtual 360° prin showroom</span>
                   <span className="experience-card-arrow">&#8599;</span>
                 </div>
               </a>
