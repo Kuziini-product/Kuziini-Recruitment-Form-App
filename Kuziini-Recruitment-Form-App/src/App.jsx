@@ -168,8 +168,19 @@ function AdminLogin({ onSuccess, onCancel }) {
 }
 
 export default function App() {
-  const [isAdmin, setIsAdmin] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(() => localStorage.getItem('kuziini_admin') === 'true')
   const [showLogin, setShowLogin] = useState(false)
+
+  function loginAdmin() {
+    localStorage.setItem('kuziini_admin', 'true')
+    setIsAdmin(true)
+    setShowLogin(false)
+  }
+
+  function logoutAdmin() {
+    localStorage.removeItem('kuziini_admin')
+    setIsAdmin(false)
+  }
   const [form, setForm] = useState(initialForm)
   const [errors, setErrors] = useState({})
   const [step, setStep] = useState('welcome') // welcome | form | cvPrompt | interview | success
@@ -215,10 +226,10 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
 
-  if (isAdmin) return <AdminDashboard onExit={() => setIsAdmin(false)} />
+  if (isAdmin) return <AdminDashboard onExit={logoutAdmin} />
 
   const loginModal = showLogin && (
-    <AdminLogin onSuccess={() => { setShowLogin(false); setIsAdmin(true) }} onCancel={() => setShowLogin(false)} />
+    <AdminLogin onSuccess={loginAdmin} onCancel={() => setShowLogin(false)} />
   )
 
   function updateField(key, value) {

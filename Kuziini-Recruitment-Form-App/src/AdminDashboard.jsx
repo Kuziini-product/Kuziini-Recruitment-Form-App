@@ -179,6 +179,55 @@ export default function AdminDashboard({ onExit }) {
   const [expandedId, setExpandedId] = useState(null)
   const [expandedData, setExpandedData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [pushEnabled, setPushEnabled] = useState(false)
+  const [lastCount, setLastCount] = useState(0)
+  const [newAlert, setNewAlert] = useState(false)
+
+  // Register service worker + check notification permission
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {})
+    }
+    setPushEnabled(Notification.permission === 'granted')
+  }, [])
+
+  // Poll for new applicants every 30s
+  useEffect(() => {
+    if (!stats) return
+    setLastCount(stats.total)
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch('/api/admin/stats')
+        const newStats = await res.json()
+        if (newStats.total > lastCount) {
+          setNewAlert(true)
+          setLastCount(newStats.total)
+          // Browser notification
+          if (Notification.permission === 'granted') {
+            new Notification('Kuziini Recruitment', {
+              body: `Aplicare noua! Total: ${newStats.total} aplicanti.`,
+              icon: '/logo-kuziini.png',
+            })
+          }
+          // Auto-refresh data
+          loadData()
+          setTimeout(() => setNewAlert(false), 5000)
+        }
+      } catch {}
+    }, 30000)
+
+    return () => clearInterval(interval)
+  }, [stats, lastCount])
+
+  async function enableNotifications() {
+    if (!('Notification' in window)) return alert('Browser-ul nu suporta notificari.')
+    const perm = await Notification.requestPermission()
+    if (perm === 'granted') {
+      setPushEnabled(true)
+      new Notification('Kuziini Recruitment', { body: 'Notificarile sunt activate! Vei fi anuntat la fiecare aplicare noua.', icon: '/logo-kuziini.png' })
+    }
+  }
 
   // Settings
   const [notifEmail, setNotifEmail] = useState(() => localStorage.getItem('kuziini_notif_email') || 'my@kuziini.ro')
@@ -279,9 +328,15 @@ export default function AdminDashboard({ onExit }) {
             <h1>Kuziini Recruitment Admin</h1>
             <p className="admin-subtitle">Panou de management aplicanti — toate datele intr-o singura pagina</p>
           </div>
-          <div style={{ display: 'flex', gap: 12 }}>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            {newAlert && <span className="new-applicant-alert">Aplicant nou!</span>}
+            {!pushEnabled ? (
+              <button className="btn btn-small btn-notif" onClick={enableNotifications}>🔔 Activeaza notificari</button>
+            ) : (
+              <span className="notif-active-badge">🔔 Notificari active</span>
+            )}
             <button className="btn btn-small" onClick={loadData}>Reincarca</button>
-            {onExit && <button className="btn btn-small" onClick={onExit}>Inapoi la formular</button>}
+            {onExit && <button className="btn btn-small" onClick={onExit}>Deconectare</button>}
           </div>
         </div>
 
