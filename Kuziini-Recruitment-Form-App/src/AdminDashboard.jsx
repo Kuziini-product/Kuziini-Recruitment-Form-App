@@ -16,6 +16,143 @@ function classLabel(c) {
   return 'Slab'
 }
 
+// ── AI Profile Generator ──
+function generateProfile(a) {
+  const answers = a.interview_answers || []
+  const hobby = answers.find(ans => ans.type === 'hobby')
+  const hearts = answers.filter(ans => ans.type === 'hearts')
+  const techAnswers = answers.filter(ans => !ans.type || ans.type === 'choice')
+  const pct = a.score_pct || 0
+
+  const profile = { personality: [], professional: [], risks: [], score: 0 }
+
+  // ── Personalitate din muzica ──
+  if (a.music_genre === 'classical') {
+    profile.personality.push('Perfectionista, ordonat, apreciaza estetica si structura')
+    profile.score += 2
+  } else if (a.music_genre === 'lofi') {
+    profile.personality.push('Creativ, relaxat sub presiune, gandire fluida')
+    profile.score += 2
+  } else if (a.music_genre === 'jazz') {
+    profile.personality.push('Spontan, adaptabil, deschis la improvizatie')
+    profile.score += 2
+  } else {
+    profile.personality.push('Nu a selectat gen muzical — posibil grabit sau dezinteresat de detalii')
+    profile.risks.push('Nivel scazut de engagement cu procesul')
+  }
+
+  // ── Personalitate din hobby ──
+  if (hobby) {
+    const h = hobby.selectedAnswer?.toLowerCase() || ''
+    if (h.includes('sport')) { profile.personality.push('Disciplinat, competitiv, rezistent la stres'); profile.score += 2 }
+    else if (h.includes('studiu')) { profile.personality.push('Curios intelectual, dedicat auto-perfectionarii'); profile.score += 3 }
+    else if (h.includes('calatorit')) { profile.personality.push('Deschis la noi perspective, adaptabil cultural'); profile.score += 2 }
+    else if (h.includes('filme')) { profile.personality.push('Atent la detalii vizuale, gandire narativa'); profile.score += 1 }
+    else if (h.includes('nu am')) { profile.risks.push('Fara hobby declarat — posibil concentrat exclusiv pe munca (risc burnout)'); profile.score -= 1 }
+    else if (h.includes('personalizat')) { profile.personality.push('Independent, creativ, nu se conformeaza tiparelor'); profile.score += 2 }
+  }
+
+  // ── Inimioare (brand affinity) ──
+  const avgHearts = hearts.length > 0 ? hearts.reduce((s, h) => s + h.points, 0) / hearts.length : 0
+  if (avgHearts >= 4) { profile.personality.push('Afinitate puternica cu brandul Kuziini — motivatie intrinseca'); profile.score += 3 }
+  else if (avgHearts >= 2.5) { profile.personality.push('Interes moderat pentru brand — motivatie mai degraba financiara'); profile.score += 1 }
+  else if (hearts.length > 0) { profile.risks.push('Afinitate scazuta cu brandul — posibil aplica din nevoie, nu din dorinta') }
+
+  // ── Profil profesional din raspunsuri tehnice ──
+  const techScore = techAnswers.reduce((s, a) => s + (a.points || 0), 0)
+  const techMax = techAnswers.reduce((s, a) => s + (a.maxPoints || 5), 0)
+  const techPct = techMax > 0 ? (techScore / techMax) * 100 : 0
+
+  if (techPct >= 80) { profile.professional.push('Nivel tehnic avansat — poate lucra autonom pe proiecte complexe'); profile.score += 3 }
+  else if (techPct >= 60) { profile.professional.push('Nivel tehnic bun — necesita supervizare minima'); profile.score += 2 }
+  else if (techPct >= 40) { profile.professional.push('Nivel tehnic mediu — va necesita training si mentorat'); profile.score += 1 }
+  else { profile.professional.push('Nivel tehnic insuficient — nu corespunde cerintelor rolului'); profile.score -= 2 }
+
+  // ── Consistenta raspunsurilor ──
+  const points = techAnswers.map(a => a.points)
+  const allSame = points.length > 2 && points.every(p => p === points[0])
+  const allMax = points.length > 2 && points.every(p => p >= 4)
+  if (allSame && points[0] < 3) {
+    profile.risks.push('ATENTIE: Toate raspunsurile au acelasi punctaj scazut — posibil selectate la intamplare')
+    profile.score -= 3
+  }
+  if (allMax) {
+    profile.professional.push('Raspunsuri constant la nivel maxim — fie expert autentic, fie raspunsuri exagerate')
+  }
+
+  // ── Timp completare ──
+  const time = a.completion_time_seconds || 0
+  if (time < 60) {
+    profile.risks.push('Formular completat in sub 1 minut — raspunsuri probabil superficiale')
+    profile.score -= 2
+  } else if (time < 180) {
+    profile.professional.push('Completare rapida dar acceptabila — persoana decisiva')
+  } else if (time > 600) {
+    profile.professional.push('A petrecut mult timp — atent la detalii sau indecis')
+    profile.score += 1
+  }
+
+  // ── CV si motivatie ──
+  if (a.has_cv) { profile.professional.push('A atasat CV — candidatura serioasa'); profile.score += 2 }
+  else { profile.risks.push('Fara CV atasat — seriozitate redusa') }
+
+  const motivation = a.motivation || ''
+  if (motivation.length > 200) { profile.professional.push('Motivatie detaliata (' + motivation.length + ' caractere) — candidat implicat'); profile.score += 2 }
+  else if (motivation.length > 50) { profile.professional.push('Motivatie adecvata') }
+  else { profile.risks.push('Motivatie foarte scurta — efort minim depus') }
+
+  // ── Nota finala ──
+  const maxProfileScore = 20
+  profile.finalScore = Math.max(0, Math.min(10, Math.round((profile.score / maxProfileScore) * 10)))
+
+  return profile
+}
+
+function ProfileCard({ applicant }) {
+  const p = generateProfile(applicant)
+  const scoreColor = p.finalScore >= 7 ? '#16a34a' : p.finalScore >= 4 ? '#ca8a04' : '#dc2626'
+
+  return (
+    <div className="ai-profile">
+      <div className="ai-profile-header">
+        <h3>Profil AI — Analiza Psihologica &amp; Profesionala</h3>
+        <div className="ai-score" style={{ background: scoreColor }}>
+          {p.finalScore}/10
+        </div>
+      </div>
+
+      {p.personality.length > 0 && (
+        <div className="ai-section">
+          <h4>🧠 Profil Psihologic</h4>
+          <ul>{p.personality.map((t, i) => <li key={i}>{t}</li>)}</ul>
+        </div>
+      )}
+
+      {p.professional.length > 0 && (
+        <div className="ai-section">
+          <h4>💼 Profil Profesional</h4>
+          <ul>{p.professional.map((t, i) => <li key={i}>{t}</li>)}</ul>
+        </div>
+      )}
+
+      {p.risks.length > 0 && (
+        <div className="ai-section ai-risks">
+          <h4>⚠️ Semnale de atentie</h4>
+          <ul>{p.risks.map((t, i) => <li key={i}>{t}</li>)}</ul>
+        </div>
+      )}
+
+      <div className="ai-tags">
+        {applicant.music_genre && <span className="ai-tag">🎵 {applicant.music_genre}</span>}
+        {applicant.gender && <span className="ai-tag">👤 {applicant.gender}</span>}
+        {applicant.has_cv && <span className="ai-tag ai-tag-good">📄 CV atasat</span>}
+        {applicant.has_photo && <span className="ai-tag ai-tag-good">📷 Foto</span>}
+        {applicant.attempt_number > 1 && <span className="ai-tag ai-tag-warn">🔄 Re-aplicare #{applicant.attempt_number}</span>}
+      </div>
+    </div>
+  )
+}
+
 function StatCard({ label, value, sub, color }) {
   return (
     <div className="admin-stat-card">
@@ -216,6 +353,7 @@ export default function AdminDashboard({ onExit }) {
                 <span className="best-score-class">{best.classification}</span>
               </div>
             </div>
+            <ProfileCard applicant={best} />
             {top5.length > 1 && (
               <div className="top5-list">
                 {top5.slice(1).map((a) => (
@@ -298,6 +436,8 @@ export default function AdminDashboard({ onExit }) {
                           <p>{expandedData.motivation}</p>
                         </div>
                       )}
+
+                      <ProfileCard applicant={expandedData} />
 
                       <div className="detail-answers">
                         <h3>Raspunsuri ({expandedData.interview_score}/{expandedData.max_score} puncte)</h3>
