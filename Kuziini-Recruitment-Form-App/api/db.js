@@ -4,7 +4,9 @@ let sql
 
 export function getDb() {
   if (!sql) {
-    sql = neon(process.env.DATABASE_URL)
+    const dbUrl = process.env.DATABASE_URL || process.env.Recrutment_DATABASE_URL || process.env.Recrutment_POSTGRES_URL
+    if (!dbUrl) throw new Error('DATABASE_URL not configured')
+    sql = neon(dbUrl)
   }
   return sql
 }

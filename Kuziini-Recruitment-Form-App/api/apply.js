@@ -12,8 +12,9 @@ export default async function handler(req, res) {
 
     let insertedId = null
 
-    // Try to save to database (if DATABASE_URL is configured)
-    if (process.env.DATABASE_URL) {
+    // Try to save to database (if any DB URL is configured)
+    const dbUrl = process.env.DATABASE_URL || process.env.Recrutment_DATABASE_URL || process.env.Recrutment_POSTGRES_URL
+    if (dbUrl) {
       try {
         const { getDb, initDb } = await import('./db.js')
         await initDb()
