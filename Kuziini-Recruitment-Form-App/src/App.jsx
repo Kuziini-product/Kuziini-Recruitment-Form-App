@@ -387,23 +387,6 @@ export default function App() {
             <Reveal>
               <form onSubmit={handleSubmit} className="form-grid">
 
-                {/* ── Music Genre Selector ── */}
-                <Field label="Ce gen de muzica te inspira?" required={false}>
-                  <div className="genre-selector">
-                    {getGenres().map((g) => (
-                      <button
-                        key={g.id}
-                        type="button"
-                        className={`genre-btn ${form.musicGenre === g.id ? 'genre-active' : ''}`}
-                        onClick={() => updateField('musicGenre', g.id)}
-                      >
-                        <span className="genre-icon">{g.icon}</span>
-                        <span className="genre-label">{g.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </Field>
-
                 {/* ── Gender + Photo ── */}
                 <div className="two-cols">
                   <Field label="Gen" required error={errors.gender}>
@@ -521,6 +504,23 @@ export default function App() {
                   </label>
                   {errors.gdpr ? <div className="error">{errors.gdpr}</div> : null}
                 </div>
+
+                {/* ── Music Genre Selector (last before submit) ── */}
+                <Field label="Ce gen de muzica te inspira?">
+                  <div className="genre-selector">
+                    {getGenres().map((g) => (
+                      <button
+                        key={g.id}
+                        type="button"
+                        className={`genre-btn ${form.musicGenre === g.id ? 'genre-active' : ''}`}
+                        onClick={() => updateField('musicGenre', g.id)}
+                      >
+                        <span className="genre-icon">{g.icon}</span>
+                        <span className="genre-label">{g.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </Field>
 
                 <div className="form-footer">
                   <span>Completare: {completion}%</span>
