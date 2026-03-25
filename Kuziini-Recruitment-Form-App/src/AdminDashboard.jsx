@@ -294,6 +294,18 @@ export default function AdminDashboard({ onExit, onHome }) {
     setLoading(false)
   }
 
+  async function deleteApplicant(id, name) {
+    if (!confirm(`Stergi definitiv aplicantul "${name}"?`)) return
+    try {
+      await fetch(`${API}/api/admin/delete?id=${id}`, { method: 'DELETE' })
+      setApplicants(prev => prev.filter(a => a.id !== id))
+      if (expandedId === id) { setExpandedId(null); setExpandedData(null) }
+      loadData()
+    } catch (err) {
+      console.error('Delete failed:', err)
+    }
+  }
+
   async function toggleDetail(id) {
     if (expandedId === id) {
       setExpandedId(null)
@@ -543,6 +555,15 @@ export default function AdminDashboard({ onExit, onHome }) {
                             </div>
                           ))}
                         </div>
+                      </div>
+
+                      <div className="applicant-actions">
+                        <button
+                          className="btn btn-small btn-delete"
+                          onClick={(e) => { e.stopPropagation(); deleteApplicant(expandedData.id, expandedData.full_name) }}
+                        >
+                          🗑️ Sterge aplicantul
+                        </button>
                       </div>
                     </div>
                   )}

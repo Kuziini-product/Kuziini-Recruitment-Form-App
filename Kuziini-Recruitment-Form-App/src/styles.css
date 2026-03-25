@@ -2568,6 +2568,28 @@ body.admin-active::after {
   font-weight: 700;
 }
 
+/* ── Applicant actions ── */
+
+.applicant-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+  margin-top: 16px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.btn-delete {
+  background: #fef2f2 !important;
+  color: #dc2626 !important;
+  border-color: #fecaca !important;
+}
+
+.btn-delete:hover {
+  background: #dc2626 !important;
+  color: #fff !important;
+  border-color: #dc2626 !important;
+}
+
 /* ── AI Profile Card ── */
 
 .ai-profile {

@@ -286,18 +286,20 @@ export default function App() {
     return Object.keys(e).length === 0
   }
 
+  const isAdminSession = localStorage.getItem('kuziini_admin') === 'true'
+
   function handleSubmit(event) {
     event.preventDefault()
-    if (!validate()) {
-      // Scroll to first error
+    // Admin can skip validation
+    if (!isAdminSession && !validate()) {
       setTimeout(() => {
         const firstErr = document.querySelector('.error')
         if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' })
       }, 100)
       return
     }
-    // If no CV attached, show CV prompt
-    if (!cvFile && !form.portfolio.trim()) {
+    // If no CV attached, show CV prompt (skip for admin)
+    if (!isAdminSession && !cvFile && !form.portfolio.trim()) {
       setStep('cvPrompt')
     } else {
       setStep('interview')
