@@ -958,6 +958,47 @@ textarea {
   margin-left: 8px;
 }
 
+/* ── Falling hearts particles ── */
+
+.hearts-rating-wrap {
+  position: relative;
+  overflow: hidden;
+  padding: 20px 0;
+}
+
+.falling-hearts-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.falling-heart {
+  position: absolute;
+  top: -20px;
+  animation: heartFall linear forwards;
+  opacity: 0;
+  filter: blur(0.3px);
+}
+
+@keyframes heartFall {
+  0% {
+    opacity: 0;
+    transform: translateY(0) translateX(0) rotate(0deg) scale(0.5);
+  }
+  10% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(200px) translateX(var(--drift)) rotate(45deg) scale(0.3);
+  }
+}
+
 /* ══════════════════════════════════════════
    UPLOAD ZONE
    ══════════════════════════════════════════ */

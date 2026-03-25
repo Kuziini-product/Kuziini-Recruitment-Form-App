@@ -1,33 +1,102 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import {
   technicalQuestions,
   kuziiniQuestions,
   TOTAL_MAX_SCORE,
 } from './interviewQuestions'
 
-const allQuestions = [...technicalQuestions, ...kuziiniQuestions]
+// ── Shuffle options per question (seeded by question id for consistency) ──
+function shuffleWithSeed(arr, seed) {
+  const shuffled = [...arr]
+  let s = typeof seed === 'string' ? seed.split('').reduce((a, c) => a + c.charCodeAt(0), 0) : seed
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    s = (s * 9301 + 49297) % 233280
+    const j = Math.floor((s / 233280) * (i + 1))
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled
+}
+
+// Shuffle all choice-type questions' options
+const allQuestions = [...technicalQuestions, ...kuziiniQuestions].map((q) => {
+  if (q.options) {
+    return { ...q, options: shuffleWithSeed(q.options, q.id) }
+  }
+  return q
+})
+
+// ── Falling hearts particle system ──
+function FallingHearts({ count }) {
+  const [particles, setParticles] = useState([])
+
+  useEffect(() => {
+    if (count <= 0) {
+      setParticles([])
+      return
+    }
+    // Generate particles based on count (more hearts = more particles)
+    const numParticles = count * 6
+    const newParticles = Array.from({ length: numParticles }, (_, i) => ({
+      id: Date.now() + i,
+      left: Math.random() * 100,
+      delay: Math.random() * 1.5,
+      duration: 1.5 + Math.random() * 2,
+      size: 0.6 + Math.random() * 1.2,
+      drift: (Math.random() - 0.5) * 40,
+    }))
+    setParticles(newParticles)
+
+    const timer = setTimeout(() => setParticles([]), 4000)
+    return () => clearTimeout(timer)
+  }, [count])
+
+  if (particles.length === 0) return null
+
+  return (
+    <div className="falling-hearts-container">
+      {particles.map((p) => (
+        <span
+          key={p.id}
+          className="falling-heart"
+          style={{
+            left: `${p.left}%`,
+            animationDelay: `${p.delay}s`,
+            animationDuration: `${p.duration}s`,
+            fontSize: `${p.size}rem`,
+            '--drift': `${p.drift}px`,
+          }}
+        >
+          {'\u2764\uFE0F'}
+        </span>
+      ))}
+    </div>
+  )
+}
 
 function HeartsRating({ max, value, onChange }) {
   const [hover, setHover] = useState(0)
   return (
-    <div className="hearts-rating">
-      {Array.from({ length: max }, (_, i) => {
-        const idx = i + 1
-        const active = idx <= (hover || value)
-        return (
-          <button
-            key={i}
-            type="button"
-            className={`heart-btn ${active ? 'heart-active' : ''}`}
-            onClick={() => onChange(idx)}
-            onMouseEnter={() => setHover(idx)}
-            onMouseLeave={() => setHover(0)}
-          >
-            {active ? '\u2764\uFE0F' : '\u{1F90D}'}
-          </button>
-        )
-      })}
-      {value > 0 && <span className="hearts-label">{value}/{max}</span>}
+    <div className="hearts-rating-wrap">
+      <FallingHearts count={value} />
+      <div className="hearts-rating">
+        {Array.from({ length: max }, (_, i) => {
+          const idx = i + 1
+          const active = idx <= (hover || value)
+          return (
+            <button
+              key={i}
+              type="button"
+              className={`heart-btn ${active ? 'heart-active' : ''}`}
+              onClick={() => onChange(idx)}
+              onMouseEnter={() => setHover(idx)}
+              onMouseLeave={() => setHover(0)}
+            >
+              {active ? '\u2764\uFE0F' : '\u{1F90D}'}
+            </button>
+          )
+        })}
+        {value > 0 && <span className="hearts-label">{value}/{max}</span>}
+      </div>
     </div>
   )
 }
@@ -143,7 +212,6 @@ export default function MiniInterview({ formData, startTime, onComplete, onBack 
         completionTimeSeconds: completionSeconds,
       }
 
-      // If there's a file, use FormData
       let res
       if (file) {
         const fd = new FormData()
