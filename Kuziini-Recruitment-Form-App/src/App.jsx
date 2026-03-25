@@ -588,7 +588,7 @@ export default function App() {
                     <img src="/logo-kuziini.png" alt="" />
                   </div>
                   <strong className="experience-card-title">Intra in universul Kuziini</strong>
-                  <span className="experience-card-arrow">&#8599;</span>
+                  <span className="experience-card-finger">&#9757;</span>
                 </div>
               </a>
             </Reveal>

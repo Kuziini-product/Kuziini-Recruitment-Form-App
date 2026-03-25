@@ -594,15 +594,15 @@ a:hover {
   inset: 0;
   background: linear-gradient(
     135deg,
-    rgba(10, 10, 10, 0.85) 0%,
-    rgba(10, 10, 10, 0.6) 50%,
-    rgba(201, 168, 76, 0.15) 100%
+    rgba(10, 10, 10, 0.55) 0%,
+    rgba(10, 10, 10, 0.35) 50%,
+    rgba(201, 168, 76, 0.1) 100%
   );
   transition: opacity 0.4s ease;
 }
 
 .experience-btn-card:hover .experience-overlay {
-  opacity: 0.9;
+  opacity: 0.85;
 }
 
 .experience-card-content {
@@ -645,17 +645,18 @@ a:hover {
   margin-bottom: 4px;
 }
 
-.experience-card-arrow {
+.experience-card-finger {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  font-size: 1.1rem;
-  color: var(--gold);
-  transition: transform 0.3s ease;
+  top: 14px;
+  right: 14px;
+  font-size: 1.6rem;
+  animation: fingerTap 1.5s ease-in-out infinite;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
 }
 
-.experience-btn-card:hover .experience-card-arrow {
-  transform: translate(3px, -3px);
+@keyframes fingerTap {
+  0%, 100% { transform: scale(1) rotate(-10deg); }
+  50% { transform: scale(0.85) rotate(-10deg) translateY(3px); }
 }
 
 /* ── Logo with flash ── */
