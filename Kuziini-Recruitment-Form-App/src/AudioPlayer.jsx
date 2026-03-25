@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react'
  * since browsers block 0x0 players.
  */
 const YOUTUBE_VIDEO_ID = 'hN_q-_nGv4U'
-const START_SECONDS = 45
+const START_SECONDS = 48
 
 export default function AudioPlayer() {
   const [ready, setReady] = useState(false)

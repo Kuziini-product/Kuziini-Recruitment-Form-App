@@ -7,12 +7,12 @@
 export const technicalQuestions = [
   {
     id: 1,
-    question: 'Care este nivelul tau de cunoastere in Corpus Solution 3D?',
+    question: 'Care este nivelul tau de cunoastere in Corpus Solutions 3D?',
     options: [
       { text: 'Am lucrat extensiv (3+ ani), inclusiv configurari complexe si biblioteci custom', points: 5 },
       { text: 'Am experienta medie (1-3 ani), proiecte de bucatarii si mobilier standard', points: 3 },
       { text: 'Am cunostinte de baza, am folosit-o ocazional', points: 1 },
-      { text: 'Nu am lucrat in Corpus Solution, dar am experienta in alte programe CAD', points: 0 },
+      { text: 'Nu am lucrat in Corpus Solutions, dar am experienta in alte programe CAD', points: 0 },
     ],
   },
   {

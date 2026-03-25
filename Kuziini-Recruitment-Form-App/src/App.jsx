@@ -207,7 +207,7 @@ export default function App() {
                 <h1>Aplicare trimisa cu succes</h1>
                 <p>
                   Multumim, <strong>{form.fullName}</strong>. Candidatura ta pentru pozitia de{' '}
-                  <strong>Proiectant Mobilier &ndash; Corpus Solution 3D</strong> a fost inregistrata.
+                  <strong>Proiectant Mobilier &ndash; Corpus Solutions 3D</strong> a fost inregistrata.
                 </p>
 
                 <div className="classification-badge" style={{ background: classColor }}>
@@ -266,7 +266,7 @@ export default function App() {
               <div className="badges">
                 <span className="badge badge-brand">Kuziini</span>
                 <span className="badge">Bucuresti</span>
-                <span className="badge">Corpus Solution 3D</span>
+                <span className="badge">Corpus Solutions 3D</span>
               </div>
             </Reveal>
 
@@ -280,7 +280,7 @@ export default function App() {
 
             <Reveal delay={2}>
               <p className="lead">
-                Cautam un profesionist cu experienta reala in proiectare mobilier si lucru in Corpus Solution 3D, cu atentie
+                Cautam un profesionist cu experienta reala in proiectare mobilier si lucru in Corpus Solutions 3D, cu atentie
                 la executie, materiale si logica de productie.
               </p>
               <div className="gold-line" />
@@ -310,7 +310,7 @@ export default function App() {
                   <Field label="Experienta totala in mobilier (ani)" required error={errors.experienceYears}>
                     <input value={form.experienceYears} onChange={(e) => updateField('experienceYears', e.target.value)} placeholder="4" />
                   </Field>
-                  <Field label="Experienta in Corpus Solution (ani)" required error={errors.corpusYears}>
+                  <Field label="Experienta in Corpus Solutions (ani)" required error={errors.corpusYears}>
                     <input value={form.corpusYears} onChange={(e) => updateField('corpusYears', e.target.value)} placeholder="2" />
                   </Field>
                 </div>
@@ -342,7 +342,7 @@ export default function App() {
                     rows="6"
                     value={form.motivation}
                     onChange={(e) => updateField('motivation', e.target.value)}
-                    placeholder="Spune-ne ce tipuri de proiecte ai facut, cat de bine stapanesti Corpus Solution si partea de executie."
+                    placeholder="Spune-ne ce tipuri de proiecte ai facut, cat de bine stapanesti Corpus Solutions si partea de executie."
                   />
                 </Field>
 
@@ -384,7 +384,7 @@ export default function App() {
               <section className="card side-card">
                 <h2>Ce cauta Kuziini</h2>
                 <ul>
-                  <li>Experienta reala in Corpus Solution</li>
+                  <li>Experienta reala in Corpus Solutions</li>
                   <li>Cunostinte de accesorii si logica de montaj</li>
                   <li>Atentie la detaliu si gandire de productie</li>
                   <li>Seriozitate, viteza si autonomie</li>
