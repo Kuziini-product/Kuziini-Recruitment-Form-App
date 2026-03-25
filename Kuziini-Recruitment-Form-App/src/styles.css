@@ -550,7 +550,38 @@ a:hover {
   width: 100%;
   height: auto;
   object-fit: contain;
-  filter: brightness(1.1);
+  /* Chrome metallic effect using mask + gradient background */
+  -webkit-mask-image: url('/logo-kuziini.png');
+  mask-image: url('/logo-kuziini.png');
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  background: linear-gradient(
+    135deg,
+    #8e8e8e 0%,
+    #c0c0c0 15%,
+    #f5f5f5 25%,
+    #e8e8e8 30%,
+    #a0a0a0 40%,
+    #d4d4d4 50%,
+    #ffffff 55%,
+    #c8c8c8 60%,
+    #909090 70%,
+    #b8b8b8 80%,
+    #e0e0e0 90%,
+    #a8a8a8 100%
+  );
+  background-size: 200% 200%;
+  animation: chromeShift 6s ease-in-out infinite;
+  filter: contrast(1.2) brightness(1.1);
+}
+
+@keyframes chromeShift {
+  0%, 100% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
 }
 
 .logo-flash {
@@ -568,20 +599,40 @@ a:hover {
   position: absolute;
   top: 0;
   left: -100%;
-  width: 60%;
+  width: 40%;
   height: 100%;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(201, 168, 76, 0) 30%,
-    rgba(201, 168, 76, 0.4) 50%,
-    rgba(255, 255, 255, 0.6) 52%,
-    rgba(201, 168, 76, 0.4) 54%,
-    rgba(201, 168, 76, 0) 70%,
+    rgba(255, 255, 255, 0) 20%,
+    rgba(255, 255, 255, 0.15) 40%,
+    rgba(255, 255, 255, 0.7) 50%,
+    rgba(255, 255, 255, 0.15) 60%,
+    rgba(255, 255, 255, 0) 80%,
     transparent 100%
   );
-  transform: skewX(-20deg);
-  animation: logoFlash 4s ease-in-out infinite;
+  transform: skewX(-25deg);
+  animation: logoFlash 3.5s ease-in-out infinite;
+}
+
+/* Secondary sparkle */
+.logo-flash::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 20%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0) 70%,
+    transparent 100%
+  );
+  transform: skewX(-25deg);
+  animation: logoFlash2 3.5s ease-in-out infinite;
 }
 
 @keyframes logoFlash {
@@ -589,14 +640,34 @@ a:hover {
     left: -100%;
     opacity: 0;
   }
-  10% {
+  5% {
     opacity: 1;
   }
-  40% {
+  35% {
     left: 200%;
     opacity: 1;
   }
-  41% {
+  36% {
+    opacity: 0;
+  }
+}
+
+@keyframes logoFlash2 {
+  0%, 100% {
+    left: -100%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.8;
+  }
+  45% {
+    left: 250%;
+    opacity: 0.8;
+  }
+  46% {
     opacity: 0;
   }
 }
