@@ -1143,20 +1143,13 @@ textarea {
 
 .admin-page {
   min-height: 100vh;
-  background: #f0f1f3 !important;
+  background: #f0f1f3;
   color: #1a1a1a;
   padding: 32px;
-  position: relative;
-  z-index: 2;
-}
-
-/* Override dark body styles when admin is shown */
-.admin-page::before {
-  content: '';
   position: fixed;
   inset: 0;
-  background: #f0f1f3;
-  z-index: -1;
+  z-index: 10000;
+  overflow-y: auto;
 }
 
 .admin-container {
