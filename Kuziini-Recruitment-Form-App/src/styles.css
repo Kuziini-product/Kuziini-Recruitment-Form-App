@@ -298,27 +298,43 @@ a:hover {
 .welcome-page {
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   position: relative;
   z-index: 1;
-  padding: 40px 24px;
+  padding: 0 24px;
 }
 
 .welcome-content {
   text-align: center;
-  max-width: 700px;
+  max-width: 800px;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
 }
 
+/* Logo stays in top half, large and clean */
 .welcome-content .logo-wrap {
-  width: 80%;
-  margin: 0 auto 32px;
+  width: 100%;
+  margin: 0 auto;
+  padding-top: 8vh;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Title + music + CTA in bottom half */
+.welcome-bottom {
+  padding-bottom: 6vh;
 }
 
 .welcome-title {
   font-family: var(--font-display);
-  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-size: clamp(1.6rem, 3.5vw, 2.6rem);
   font-weight: 900;
   color: var(--white);
   line-height: 1.1;
@@ -328,36 +344,49 @@ a:hover {
 }
 
 .welcome-sub {
-  font-size: 0.82rem;
+  font-size: 0.72rem;
   font-weight: 400;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--ash);
-  margin: 0 0 20px;
+  margin: 0 0 16px;
 }
 
 .genre-selector-welcome {
   justify-content: center;
-  max-width: 420px;
+  max-width: 340px;
   margin: 0 auto;
+  gap: 10px;
+}
+
+.genre-selector-welcome .genre-btn {
+  padding: 12px 10px;
+}
+
+.genre-selector-welcome .genre-icon {
+  font-size: 1.3rem;
+}
+
+.genre-selector-welcome .genre-label {
+  font-size: 0.65rem;
 }
 
 .welcome-start-btn {
-  margin-top: 36px;
-  padding: 20px 52px !important;
-  font-size: 0.88rem !important;
+  margin-top: 28px;
+  padding: 16px 44px !important;
+  font-size: 0.82rem !important;
 }
 
 .welcome-scroll-hint {
-  margin-top: 48px;
+  margin-top: 28px;
   color: var(--ash);
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   animation: scrollBounce 2s ease-in-out infinite;
 }
 
 @keyframes scrollBounce {
-  0%, 100% { transform: translateY(0); opacity: 0.4; }
-  50% { transform: translateY(8px); opacity: 0.8; }
+  0%, 100% { transform: translateY(0); opacity: 0.3; }
+  50% { transform: translateY(6px); opacity: 0.7; }
 }
 
 /* ── Music Genre Selector ── */

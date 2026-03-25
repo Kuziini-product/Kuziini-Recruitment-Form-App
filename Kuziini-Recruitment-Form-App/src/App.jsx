@@ -261,37 +261,42 @@ export default function App() {
         {loginModal}
         <div className="welcome-page">
           <div className="welcome-content">
+            {/* Top half — logo only, large and centered */}
             <div className="logo-wrap">
               <img src="/logo-kuziini.png" alt="Kuziini" className="logo-img" />
               <div className="logo-flash" />
             </div>
-            <h1 className="welcome-title">Aplica pentru rolul de Proiectant Mobilier</h1>
-            <div className="gold-line" style={{ margin: '24px auto 40px' }} />
 
-            <p className="welcome-sub">Alege atmosfera potrivita</p>
-            <div className="genre-selector genre-selector-welcome">
-              {getGenres().map((g) => (
-                <button
-                  key={g.id}
-                  type="button"
-                  className={`genre-btn ${form.musicGenre === g.id ? 'genre-active' : ''}`}
-                  onClick={() => updateField('musicGenre', g.id)}
-                >
-                  <span className="genre-icon">{g.icon}</span>
-                  <span className="genre-label">{g.label}</span>
-                </button>
-              ))}
-            </div>
+            {/* Bottom half — title, music, CTA */}
+            <div className="welcome-bottom">
+              <h1 className="welcome-title">Aplica pentru rolul de Proiectant Mobilier</h1>
+              <div className="gold-line" style={{ margin: '20px auto 28px' }} />
 
-            <button
-              className="btn btn-primary welcome-start-btn"
-              onClick={() => { setStep('form'); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
-            >
-              Incepe aplicarea
-            </button>
+              <p className="welcome-sub">Alege atmosfera potrivita</p>
+              <div className="genre-selector genre-selector-welcome">
+                {getGenres().map((g) => (
+                  <button
+                    key={g.id}
+                    type="button"
+                    className={`genre-btn ${form.musicGenre === g.id ? 'genre-active' : ''}`}
+                    onClick={() => updateField('musicGenre', g.id)}
+                  >
+                    <span className="genre-icon">{g.icon}</span>
+                    <span className="genre-label">{g.label}</span>
+                  </button>
+                ))}
+              </div>
 
-            <div className="welcome-scroll-hint">
-              <span>&#8595;</span>
+              <button
+                className="btn btn-primary welcome-start-btn"
+                onClick={() => { setStep('form'); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+              >
+                Incepe aplicarea
+              </button>
+
+              <div className="welcome-scroll-hint">
+                <span>&#8595;</span>
+              </div>
             </div>
           </div>
         </div>
