@@ -437,7 +437,6 @@ export default function App() {
 
   // ── STEP: SUCCESS ──
   if (step === 'success') {
-    const classColor = result?.classification === 'A' ? '#c9a84c' : result?.classification === 'B' ? '#94a3b8' : result?.classification === 'C' ? '#78716c' : '#6b7280'
     return (
       <>
         <CursorGlow />
@@ -448,24 +447,23 @@ export default function App() {
             <Reveal>
               <section className="card success-card">
                 <div className="success-icon">&#10003;</div>
-                <h1>Aplicare trimisa cu succes</h1>
-                <p>Multumim, <strong>{form.fullName}</strong>. Candidatura ta a fost inregistrata.</p>
-                <div className="classification-badge" style={{ background: classColor }}>
-                  <span className="classification-letter">{result?.classification}</span>
-                  <span className="classification-label">{result?.classificationLabel}</span>
+                <h1>Multumim, {form.fullName}!</h1>
+                <div className="gold-line" style={{ margin: '20px auto 28px' }} />
+                <p className="success-message">
+                  Echipa <strong>Vali Kuziini</strong> iti multumeste ca ai aplicat pentru pozitia de
+                  Proiectant Mobilier. Vom evalua solicitarea ta si vom reveni cu un raspuns
+                  in cel mai scurt timp.
+                </p>
+                <p className="success-message" style={{ marginTop: 16 }}>
+                  Iti dorim o zi frumoasa!
+                </p>
+                <div className="success-signature">
+                  <div className="logo-wrap" style={{ width: '120px', margin: '24px auto 16px' }}>
+                    <img src="/logo-kuziini.png" alt="Kuziini" className="logo-img" />
+                  </div>
+                  <span>Echipa Kuziini Recruitment</span>
                 </div>
-                <div className="score-display">
-                  <div className="score-number">{result?.score}</div>
-                  <div className="score-max">/ {result?.maxScore} puncte</div>
-                </div>
-                <div className="summary-grid">
-                  <div className="summary-box"><span>Nume</span><strong>{form.fullName}</strong></div>
-                  <div className="summary-box"><span>Email</span><strong>{form.email}</strong></div>
-                  <div className="summary-box"><span>Telefon</span><strong>{form.phone}</strong></div>
-                  <div className="summary-box"><span>Experienta Corpus</span><strong>{form.corpusYears} ani</strong></div>
-                </div>
-                <p className="success-note">Un email cu datele tale a fost trimis echipei Kuziini.</p>
-                <button className="btn btn-primary" onClick={resetForm}>Trimite alta aplicare</button>
+                <button className="btn btn-primary" onClick={resetForm} style={{ marginTop: 28 }}>Inapoi la pagina principala</button>
               </section>
             </Reveal>
           </div>

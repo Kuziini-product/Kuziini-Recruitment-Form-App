@@ -1215,6 +1215,31 @@ textarea {
   font-weight: 300;
 }
 
+.success-message {
+  font-size: 1.05rem;
+  color: var(--mist);
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+.success-message strong {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.success-signature {
+  margin-top: 8px;
+  text-align: center;
+}
+
+.success-signature span {
+  font-size: 0.82rem;
+  color: var(--ash);
+  letter-spacing: 0.08em;
+}
+
 .success-note {
   font-size: 0.85rem;
   color: var(--ash);
