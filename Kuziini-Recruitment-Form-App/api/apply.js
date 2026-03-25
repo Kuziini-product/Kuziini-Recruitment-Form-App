@@ -61,7 +61,7 @@ export default async function handler(req, res) {
 
       const info = await transporter.sendMail({
         from: '"Kuziini Recruitment" <noreply@kuziini.ro>',
-        to: 'my@kuziini.ro',
+        to: 'my@kuziini.com',
         subject: `[${classification}] Aplicare noua: ${formData.fullName} - Proiectant Mobilier`,
         html: buildEmailHtml(formData, interviewAnswers, interviewScore, maxScore, classification, label, completionTimeSeconds),
       })

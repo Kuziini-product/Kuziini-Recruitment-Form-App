@@ -89,6 +89,8 @@ function Field({ label, required, error, children }) {
   )
 }
 
+const ADMIN_PASS = 'Kuziini1'
+
 export default function App() {
   const [isAdmin, setIsAdmin] = useState(window.location.hash === '#admin')
   const [form, setForm] = useState(initialForm)
@@ -97,13 +99,20 @@ export default function App() {
   const [result, setResult] = useState(null)
   const startTimeRef = useRef(Date.now())
 
+  function tryAdminAccess() {
+    const pass = prompt('Parola admin:')
+    if (pass === ADMIN_PASS) {
+      setIsAdmin(true)
+    }
+  }
+
   useEffect(() => {
     function onHash() { setIsAdmin(window.location.hash === '#admin') }
     window.addEventListener('hashchange', onHash)
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
 
-  if (isAdmin) return <AdminDashboard />
+  if (isAdmin) return <AdminDashboard onExit={() => setIsAdmin(false)} />
 
   const completion = useMemo(() => {
     const visibleFields = [
@@ -385,9 +394,13 @@ export default function App() {
 
             <Reveal delay={4}>
               <section className="card side-card">
-                <h2>Contact</h2>
-                <p><strong>Email:</strong> recrutare@kuziini.ro</p>
-                <p><strong>Telefon:</strong> +40 7xx xxx xxx</p>
+                <h2
+                  onClick={tryAdminAccess}
+                  style={{ cursor: 'pointer' }}
+                  title="Kuziini Admin"
+                >Contact</h2>
+                <p><strong>Email:</strong> my@kuziini.com</p>
+                <p><strong>Telefon:</strong> 0723 333 221</p>
                 <p><strong>Echipa:</strong> Kuziini Recruitment</p>
               </section>
             </Reveal>

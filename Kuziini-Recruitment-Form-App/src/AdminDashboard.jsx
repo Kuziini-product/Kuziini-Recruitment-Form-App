@@ -33,7 +33,7 @@ function ScoreBar({ pct, classification }) {
   )
 }
 
-export default function AdminDashboard() {
+export default function AdminDashboard({ onExit }) {
   const [stats, setStats] = useState(null)
   const [applicants, setApplicants] = useState([])
   const [best, setBest] = useState(null)
@@ -95,9 +95,16 @@ export default function AdminDashboard() {
             <h1>Kuziini Recruitment Admin</h1>
             <p className="admin-subtitle">Panou de management aplicanti</p>
           </div>
-          <button className="btn btn-secondary" onClick={loadData}>
-            Reincarca datele
-          </button>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button className="btn btn-secondary" onClick={loadData}>
+              Reincarca datele
+            </button>
+            {onExit && (
+              <button className="btn btn-secondary" onClick={onExit}>
+                Inapoi la formular
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Tabs */}

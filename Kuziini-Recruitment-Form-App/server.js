@@ -171,7 +171,7 @@ app.post('/api/apply', upload.single('portfolio'), async (req, res) => {
       const transport = await getTransporter()
       const info = await transport.sendMail({
         from: '"Kuziini Recruitment" <noreply@kuziini.ro>',
-        to: 'my@kuziini.ro',
+        to: 'my@kuziini.com',
         subject: `[${classification}] Aplicare noua: ${formData.fullName} - Proiectant Mobilier`,
         html: buildEmailHtml(formData, interviewAnswers, interviewScore, maxScore, classification, label, completionTimeSeconds),
       })
