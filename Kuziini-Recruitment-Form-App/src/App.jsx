@@ -91,8 +91,49 @@ function Field({ label, required, error, children }) {
 
 const ADMIN_PASS = 'Kuziini1'
 
+function AdminLogin({ onSuccess, onCancel }) {
+  const [pass, setPass] = useState('')
+  const [error, setError] = useState(false)
+  const inputRef = useRef(null)
+
+  useEffect(() => { inputRef.current?.focus() }, [])
+
+  function handleSubmit(e) {
+    e.preventDefault()
+    if (pass === ADMIN_PASS) {
+      onSuccess()
+    } else {
+      setError(true)
+      setPass('')
+    }
+  }
+
+  return (
+    <div className="admin-login-overlay">
+      <form className="admin-login-box" onSubmit={handleSubmit}>
+        <h2>Kuziini Admin</h2>
+        <p>Introduceti parola pentru acces.</p>
+        <input
+          ref={inputRef}
+          type="password"
+          value={pass}
+          onChange={(e) => { setPass(e.target.value); setError(false) }}
+          placeholder="Parola"
+          className={error ? 'admin-login-error' : ''}
+        />
+        {error && <span className="admin-login-err-text">Parola incorecta</span>}
+        <div className="admin-login-btns">
+          <button type="button" className="btn btn-secondary" onClick={onCancel}>Anuleaza</button>
+          <button type="submit" className="btn btn-primary">Acces</button>
+        </div>
+      </form>
+    </div>
+  )
+}
+
 export default function App() {
-  const [isAdmin, setIsAdmin] = useState(window.location.hash === '#admin')
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [showLogin, setShowLogin] = useState(false)
   const [form, setForm] = useState(initialForm)
   const [errors, setErrors] = useState({})
   const [step, setStep] = useState('form')
@@ -100,19 +141,26 @@ export default function App() {
   const startTimeRef = useRef(Date.now())
 
   function tryAdminAccess() {
-    const pass = prompt('Parola admin:')
-    if (pass === ADMIN_PASS) {
-      setIsAdmin(true)
-    }
+    setShowLogin(true)
   }
 
   useEffect(() => {
-    function onHash() { setIsAdmin(window.location.hash === '#admin') }
+    if (window.location.hash === '#admin') setShowLogin(true)
+    function onHash() {
+      if (window.location.hash === '#admin') setShowLogin(true)
+    }
     window.addEventListener('hashchange', onHash)
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
 
   if (isAdmin) return <AdminDashboard onExit={() => setIsAdmin(false)} />
+
+  const loginModal = showLogin && (
+    <AdminLogin
+      onSuccess={() => { setShowLogin(false); setIsAdmin(true) }}
+      onCancel={() => setShowLogin(false)}
+    />
+  )
 
   const completion = useMemo(() => {
     const visibleFields = [
@@ -259,6 +307,7 @@ export default function App() {
     <>
       <CursorGlow />
       <AudioPlayer />
+      {loginModal}
       <div className="page">
         <div className="container layout">
           <section className="card main-card">

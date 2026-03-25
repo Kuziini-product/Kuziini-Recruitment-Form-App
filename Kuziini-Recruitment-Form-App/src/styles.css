@@ -1141,6 +1141,106 @@ textarea {
    ADMIN DASHBOARD (dark luxury variant)
    ══════════════════════════════════════════ */
 
+/* ── Admin Login Modal ── */
+
+.admin-login-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.admin-login-box {
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.admin-login-box h2 {
+  font-family: var(--font-display);
+  color: #111827;
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.admin-login-box p {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+}
+
+.admin-login-box input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 1rem;
+  color: #111827;
+  background: #f9fafb;
+  text-align: center;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.admin-login-box input:focus {
+  border-color: var(--gold);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15);
+  outline: none;
+}
+
+.admin-login-box input.admin-login-error {
+  border-color: #dc2626;
+  animation: loginShake 0.4s ease;
+}
+
+@keyframes loginShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+
+.admin-login-err-text {
+  display: block;
+  color: #dc2626;
+  font-size: 0.82rem;
+  margin-bottom: 8px;
+}
+
+.admin-login-btns {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.admin-login-btns .btn {
+  flex: 1;
+  padding: 14px 16px;
+}
+
+.admin-login-btns .btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.admin-login-btns .btn-primary {
+  background: var(--gold);
+  color: #111827;
+}
+
 .admin-page {
   min-height: 100vh;
   background: #f0f1f3;
