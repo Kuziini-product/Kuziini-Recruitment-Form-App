@@ -9,6 +9,13 @@ function classColor(c) {
   return '#dc2626'
 }
 
+function classLabel(c) {
+  if (c === 'A') return 'Excelent'
+  if (c === 'B') return 'Bun'
+  if (c === 'C') return 'Mediu'
+  return 'Slab'
+}
+
 function StatCard({ label, value, sub, color }) {
   return (
     <div className="admin-stat-card">
@@ -21,36 +28,33 @@ function StatCard({ label, value, sub, color }) {
   )
 }
 
-function ScoreBar({ pct, classification }) {
-  return (
-    <div className="score-bar-wrap">
-      <div
-        className="score-bar-fill"
-        style={{ width: `${pct}%`, background: classColor(classification) }}
-      />
-      <span className="score-bar-label">{pct}%</span>
-    </div>
-  )
-}
-
 export default function AdminDashboard({ onExit }) {
-  // Force body to light when admin is shown
   useEffect(() => {
     document.body.classList.add('admin-active')
     return () => document.body.classList.remove('admin-active')
   }, [])
+
   const [stats, setStats] = useState(null)
   const [applicants, setApplicants] = useState([])
   const [best, setBest] = useState(null)
   const [top5, setTop5] = useState([])
-  const [selectedId, setSelectedId] = useState(null)
-  const [detail, setDetail] = useState(null)
+  const [expandedId, setExpandedId] = useState(null)
+  const [expandedData, setExpandedData] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [tab, setTab] = useState('overview') // overview | applicants | best | detail
 
-  useEffect(() => {
-    loadData()
-  }, [])
+  // Settings
+  const [notifEmail, setNotifEmail] = useState(() => localStorage.getItem('kuziini_notif_email') || 'my@kuziini.com')
+  const [notifPhone, setNotifPhone] = useState(() => localStorage.getItem('kuziini_notif_phone') || '0723333221')
+  const [settingsSaved, setSettingsSaved] = useState(false)
+
+  function saveSettings() {
+    localStorage.setItem('kuziini_notif_email', notifEmail)
+    localStorage.setItem('kuziini_notif_phone', notifPhone)
+    setSettingsSaved(true)
+    setTimeout(() => setSettingsSaved(false), 3000)
+  }
+
+  useEffect(() => { loadData() }, [])
 
   async function loadData() {
     setLoading(true)
@@ -71,20 +75,24 @@ export default function AdminDashboard({ onExit }) {
     setLoading(false)
   }
 
-  async function viewDetail(id) {
+  async function toggleDetail(id) {
+    if (expandedId === id) {
+      setExpandedId(null)
+      setExpandedData(null)
+      return
+    }
     const res = await fetch(`${API}/api/admin/applicant?id=${id}`)
-    setDetail(await res.json())
-    setSelectedId(id)
-    setTab('detail')
+    setExpandedData(await res.json())
+    setExpandedId(id)
   }
 
   if (loading) {
     return (
       <div className="admin-page">
         <div className="admin-container">
-          <div className="interview-loading">
+          <div style={{ textAlign: 'center', padding: 80 }}>
             <div className="spinner" />
-            <p>Se incarca datele...</p>
+            <p style={{ color: '#6b7280' }}>Se incarca datele...</p>
           </div>
         </div>
       </div>
@@ -94,54 +102,22 @@ export default function AdminDashboard({ onExit }) {
   return (
     <div className="admin-page">
       <div className="admin-container">
-        {/* Header */}
+
+        {/* ════════ HEADER ════════ */}
         <div className="admin-header">
           <div>
             <h1>Kuziini Recruitment Admin</h1>
-            <p className="admin-subtitle">Panou de management aplicanti</p>
+            <p className="admin-subtitle">Panou de management aplicanti — toate datele intr-o singura pagina</p>
           </div>
           <div style={{ display: 'flex', gap: 12 }}>
-            <button className="btn btn-secondary" onClick={loadData}>
-              Reincarca datele
-            </button>
-            {onExit && (
-              <button className="btn btn-secondary" onClick={onExit}>
-                Inapoi la formular
-              </button>
-            )}
+            <button className="btn btn-small" onClick={loadData}>Reincarca</button>
+            {onExit && <button className="btn btn-small" onClick={onExit}>Inapoi la formular</button>}
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="admin-tabs">
-          <button
-            className={`admin-tab ${tab === 'overview' ? 'admin-tab-active' : ''}`}
-            onClick={() => setTab('overview')}
-          >
-            Statistici
-          </button>
-          <button
-            className={`admin-tab ${tab === 'applicants' ? 'admin-tab-active' : ''}`}
-            onClick={() => setTab('applicants')}
-          >
-            Toti aplicantii ({applicants.length})
-          </button>
-          <button
-            className={`admin-tab ${tab === 'best' ? 'admin-tab-active' : ''}`}
-            onClick={() => setTab('best')}
-          >
-            Recomandari
-          </button>
-          {tab === 'detail' && (
-            <button className="admin-tab admin-tab-active">
-              Detalii #{selectedId}
-            </button>
-          )}
-        </div>
-
-        {/* ── OVERVIEW TAB ── */}
-        {tab === 'overview' && stats && (
-          <div className="admin-section">
+        {/* ════════ STATS OVERVIEW ════════ */}
+        {stats && (
+          <>
             <div className="admin-stats-grid">
               <StatCard label="Total aplicanti" value={stats.total} />
               <StatCard
@@ -149,72 +125,63 @@ export default function AdminDashboard({ onExit }) {
                 value={stats.avgScore}
                 sub={`din ${applicants[0]?.max_score || 40} puncte`}
               />
+              <StatCard label="Timp mediu completare" value={stats.avgCompletionTimeFormatted} />
               <StatCard
-                label="Timp mediu completare"
-                value={stats.avgCompletionTimeFormatted}
-              />
-              <StatCard
-                label="Cel mai bun"
-                value={best?.full_name || '-'}
-                sub={best ? `${best.score_pct}% - Clasa ${best.classification}` : ''}
+                label="Cel mai bun candidat"
+                value={best?.full_name || 'N/A'}
+                sub={best ? `${best.score_pct}% — Clasa ${best.classification}` : ''}
                 color={best ? classColor(best.classification) : undefined}
               />
             </div>
 
-            {/* Classification distribution */}
-            <div className="admin-card">
-              <h2>Distributie pe clasificari</h2>
-              <div className="class-distribution">
-                {['A', 'B', 'C', 'D'].map((c) => {
-                  const item = stats.byClassification.find((b) => b.classification === c)
-                  const count = item?.count || 0
-                  const pct = stats.total ? Math.round((count / stats.total) * 100) : 0
-                  return (
-                    <div key={c} className="class-bar-row">
-                      <span
-                        className="class-badge"
-                        style={{ background: classColor(c), color: '#fff' }}
-                      >
-                        {c}
-                      </span>
+            {/* ════════ CLASSIFICATION + SCORE DISTRIBUTION ════════ */}
+            <div className="admin-two-cols">
+              <div className="admin-card">
+                <h2>Distributie clasificari</h2>
+                <div className="class-distribution">
+                  {['A', 'B', 'C', 'D'].map((c) => {
+                    const item = stats.byClassification.find((b) => b.classification === c)
+                    const count = item?.count || 0
+                    const pct = stats.total ? Math.round((count / stats.total) * 100) : 0
+                    return (
+                      <div key={c} className="class-bar-row">
+                        <span className="class-badge" style={{ background: classColor(c), color: '#fff' }}>
+                          {c}
+                        </span>
+                        <span className="class-badge-label">{classLabel(c)}</span>
+                        <div className="class-bar-track">
+                          <div className="class-bar-fill" style={{ width: `${pct}%`, background: classColor(c) }} />
+                        </div>
+                        <span className="class-bar-count">{count} ({pct}%)</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div className="admin-card">
+                <h2>Distributie scoruri</h2>
+                <div className="class-distribution">
+                  {stats.scoreDistribution.map((s) => (
+                    <div key={s.range} className="class-bar-row">
+                      <span className="score-range-label">{s.range}</span>
                       <div className="class-bar-track">
                         <div
                           className="class-bar-fill"
-                          style={{ width: `${pct}%`, background: classColor(c) }}
+                          style={{
+                            width: `${stats.total ? (s.count / stats.total) * 100 : 0}%`,
+                            background: '#6366f1',
+                          }}
                         />
                       </div>
-                      <span className="class-bar-count">
-                        {count} ({pct}%)
-                      </span>
+                      <span className="class-bar-count">{s.count}</span>
                     </div>
-                  )
-                })}
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Score distribution */}
-            <div className="admin-card">
-              <h2>Distributie scoruri</h2>
-              <div className="class-distribution">
-                {stats.scoreDistribution.map((s) => (
-                  <div key={s.range} className="class-bar-row">
-                    <span className="score-range-label">{s.range}</span>
-                    <div className="class-bar-track">
-                      <div
-                        className="class-bar-fill"
-                        style={{
-                          width: `${stats.total ? (s.count / stats.total) * 100 : 0}%`,
-                          background: '#6366f1',
-                        }}
-                      />
-                    </div>
-                    <span className="class-bar-count">{s.count}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Average per question */}
+            {/* ════════ AVG PER QUESTION ════════ */}
             {stats.avgByQuestion.length > 0 && (
               <div className="admin-card">
                 <h2>Scor mediu per intrebare</h2>
@@ -223,295 +190,170 @@ export default function AdminDashboard({ onExit }) {
                     <div key={i} className="question-stat-row">
                       <div className="question-stat-text">{q.question}</div>
                       <div className="question-stat-bar-wrap">
-                        <div
-                          className="question-stat-bar"
-                          style={{ width: `${(q.avgScore / q.maxPoints) * 100}%` }}
-                        />
+                        <div className="question-stat-bar" style={{ width: `${(q.avgScore / q.maxPoints) * 100}%` }} />
                       </div>
-                      <span className="question-stat-val">
-                        {q.avgScore}/{q.maxPoints}
+                      <span className="question-stat-val">{q.avgScore}/{q.maxPoints}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ════════ TOP CANDIDATI (RECOMANDARI) ════════ */}
+        {best && (
+          <div className="admin-card best-card">
+            <h2>Recomandare — Cel mai potrivit candidat</h2>
+            <div className="best-header">
+              <div className="best-rank"><span className="best-star">&#9733;</span> #1</div>
+              <div className="best-info">
+                <div className="best-name">{best.full_name}</div>
+                <div className="best-meta">{best.email} | {best.phone} | Exp. Corpus: {best.corpus_years} ani</div>
+              </div>
+              <div className="best-score-circle" style={{ borderColor: classColor(best.classification) }}>
+                <span className="best-score-val">{best.score_pct}%</span>
+                <span className="best-score-class">{best.classification}</span>
+              </div>
+            </div>
+            {top5.length > 1 && (
+              <div className="top5-list">
+                {top5.slice(1).map((a) => (
+                  <div key={a.id} className="top5-item">
+                    <span className="top5-rank">#{a.rank}</span>
+                    <span className="top5-name">{a.full_name}</span>
+                    <span className="class-badge-sm" style={{ background: classColor(a.classification) }}>{a.classification}</span>
+                    <span className="top5-score">{a.score_pct}%</span>
+                    <span className="top5-time">{a.completion_time_formatted}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ════════ TOTI APLICANTII ════════ */}
+        <div className="admin-card">
+          <h2>Toti aplicantii ({applicants.length})</h2>
+          {applicants.length === 0 ? (
+            <p style={{ textAlign: 'center', color: '#9ca3af', padding: 40 }}>
+              Niciun aplicant inca. Datele vor aparea dupa prima aplicare completata.
+            </p>
+          ) : (
+            <div className="applicants-list">
+              {applicants.map((a) => (
+                <div key={a.id} className="applicant-row-wrap">
+                  <div className="applicant-row" onClick={() => toggleDetail(a.id)}>
+                    <div className="applicant-main">
+                      <span className="class-badge-sm" style={{ background: classColor(a.classification) }}>
+                        {a.classification}
                       </span>
+                      <div className="applicant-name-col">
+                        <strong>{a.full_name}</strong>
+                        <span className="applicant-sub">{a.email} | {a.phone}</span>
+                      </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Recent applicants */}
-            {stats.recentApplicants.length > 0 && (
-              <div className="admin-card">
-                <h2>Ultimii aplicanti</h2>
-                <table className="admin-table">
-                  <thead>
-                    <tr>
-                      <th>Nume</th>
-                      <th>Clasa</th>
-                      <th>Scor</th>
-                      <th>Timp</th>
-                      <th>Data</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {stats.recentApplicants.map((a) => (
-                      <tr
-                        key={a.id}
-                        className="admin-row-clickable"
-                        onClick={() => viewDetail(a.id)}
-                      >
-                        <td>{a.full_name}</td>
-                        <td>
-                          <span
-                            className="class-badge-sm"
-                            style={{ background: classColor(a.classification) }}
-                          >
-                            {a.classification}
-                          </span>
-                        </td>
-                        <td>{a.score_pct}%</td>
-                        <td>{a.completion_time_formatted}</td>
-                        <td>{new Date(a.created_at).toLocaleDateString('ro-RO')}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── APPLICANTS TAB ── */}
-        {tab === 'applicants' && (
-          <div className="admin-section">
-            <div className="admin-card">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Nume</th>
-                    <th>Email</th>
-                    <th>Telefon</th>
-                    <th>Clasa</th>
-                    <th>Scor</th>
-                    <th>Timp completare</th>
-                    <th>Data</th>
-                    <th>Actiuni</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {applicants.map((a) => (
-                    <tr key={a.id}>
-                      <td>{a.id}</td>
-                      <td><strong>{a.full_name}</strong></td>
-                      <td>{a.email}</td>
-                      <td>{a.phone}</td>
-                      <td>
-                        <span
-                          className="class-badge-sm"
-                          style={{ background: classColor(a.classification) }}
-                        >
-                          {a.classification}
+                    <div className="applicant-stats">
+                      <div className="applicant-stat">
+                        <span className="applicant-stat-label">Scor</span>
+                        <span className="applicant-stat-val" style={{ color: classColor(a.classification) }}>
+                          {a.score_pct}%
                         </span>
-                      </td>
-                      <td>
-                        <ScoreBar pct={a.score_pct} classification={a.classification} />
-                      </td>
-                      <td>{a.completion_time_formatted}</td>
-                      <td>{new Date(a.created_at).toLocaleDateString('ro-RO')}</td>
-                      <td>
-                        <button
-                          className="btn btn-small"
-                          onClick={() => viewDetail(a.id)}
-                        >
-                          Detalii
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {applicants.length === 0 && (
-                <p style={{ textAlign: 'center', color: '#6b7280', padding: 40 }}>
-                  Niciun aplicant inca.
-                </p>
-              )}
+                      </div>
+                      <div className="applicant-stat">
+                        <span className="applicant-stat-label">Corpus</span>
+                        <span className="applicant-stat-val">{a.corpus_years} ani</span>
+                      </div>
+                      <div className="applicant-stat">
+                        <span className="applicant-stat-label">Timp</span>
+                        <span className="applicant-stat-val">{a.completion_time_formatted}</span>
+                      </div>
+                      <div className="applicant-stat">
+                        <span className="applicant-stat-label">Data</span>
+                        <span className="applicant-stat-val">{new Date(a.created_at).toLocaleDateString('ro-RO')}</span>
+                      </div>
+                    </div>
+                    <span className="applicant-expand">{expandedId === a.id ? '▲' : '▼'}</span>
+                  </div>
+
+                  {/* Expanded detail inline */}
+                  {expandedId === a.id && expandedData && (
+                    <div className="applicant-detail">
+                      <div className="detail-grid">
+                        <div className="detail-item"><span>Oras</span><strong>{expandedData.city || '-'}</strong></div>
+                        <div className="detail-item"><span>Experienta totala</span><strong>{expandedData.experience_years} ani</strong></div>
+                        <div className="detail-item"><span>Experienta Corpus</span><strong>{expandedData.corpus_years} ani</strong></div>
+                        <div className="detail-item"><span>Rol actual</span><strong>{expandedData.current_role || '-'}</strong></div>
+                        <div className="detail-item"><span>Salariu dorit</span><strong>{expandedData.expected_salary || '-'}</strong></div>
+                        <div className="detail-item"><span>Disponibil din</span><strong>{expandedData.available_from || '-'}</strong></div>
+                        <div className="detail-item"><span>Relocare</span><strong>{expandedData.relocate ? 'Da' : 'Nu'}</strong></div>
+                        <div className="detail-item"><span>Timp completare</span><strong>{expandedData.completion_time_formatted}</strong></div>
+                        <div className="detail-item"><span>Portfolio</span><strong>{expandedData.portfolio_link || '-'}</strong></div>
+                        <div className="detail-item"><span>LinkedIn</span><strong>{expandedData.linkedin || '-'}</strong></div>
+                      </div>
+
+                      {expandedData.motivation && (
+                        <div className="detail-motivation">
+                          <h3>Motivatie</h3>
+                          <p>{expandedData.motivation}</p>
+                        </div>
+                      )}
+
+                      <div className="detail-answers">
+                        <h3>Raspunsuri ({expandedData.interview_score}/{expandedData.max_score} puncte)</h3>
+                        <div className="answers-grid">
+                          {expandedData.interview_answers.map((ans, i) => (
+                            <div key={i} className="answer-card">
+                              <div className="answer-q">{i + 1}. {ans.question}</div>
+                              <div className="answer-a">{ans.selectedAnswer}</div>
+                              <div className="answer-score" style={{
+                                color: ans.points >= ans.maxPoints * 0.6 ? '#16a34a' : ans.points > 0 ? '#ca8a04' : '#dc2626'
+                              }}>
+                                {ans.points}/{ans.maxPoints}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* ════════ SETARI NOTIFICARI ════════ */}
+        <div className="admin-card">
+          <h2>Setari notificari</h2>
+          <div className="admin-settings">
+            <div className="settings-row">
+              <label>Email notificari</label>
+              <input
+                type="email"
+                value={notifEmail}
+                onChange={(e) => setNotifEmail(e.target.value)}
+                placeholder="my@kuziini.com"
+              />
+            </div>
+            <div className="settings-row">
+              <label>Telefon notificari</label>
+              <input
+                type="tel"
+                value={notifPhone}
+                onChange={(e) => setNotifPhone(e.target.value)}
+                placeholder="0723333221"
+              />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', marginTop: 8 }}>
+              <button className="btn btn-primary" onClick={saveSettings} style={{ padding: '12px 28px' }}>
+                Salveaza setarile
+              </button>
+              {settingsSaved && <span className="settings-saved">Salvat!</span>}
             </div>
           </div>
-        )}
+        </div>
 
-        {/* ── BEST / RECOMMENDATIONS TAB ── */}
-        {tab === 'best' && (
-          <div className="admin-section">
-            {best ? (
-              <>
-                <div className="admin-card best-card">
-                  <div className="best-header">
-                    <div className="best-rank">
-                      <span className="best-star">&#9733;</span> #1
-                    </div>
-                    <div>
-                      <h2>{best.full_name}</h2>
-                      <p className="admin-subtitle">{best.recommendation}</p>
-                    </div>
-                    <div
-                      className="best-score-circle"
-                      style={{ borderColor: classColor(best.classification) }}
-                    >
-                      <span className="best-score-val">{best.score_pct}%</span>
-                      <span className="best-score-class">{best.classification}</span>
-                    </div>
-                  </div>
-                  <div className="best-details">
-                    <div><strong>Email:</strong> {best.email}</div>
-                    <div><strong>Telefon:</strong> {best.phone}</div>
-                    <div><strong>Exp. Corpus:</strong> {best.corpus_years} ani</div>
-                    <div><strong>Exp. totala:</strong> {best.experience_years} ani</div>
-                    <div><strong>Salariu dorit:</strong> {best.expected_salary || '-'}</div>
-                    <div><strong>Timp completare:</strong> {best.completion_time_formatted}</div>
-                  </div>
-                  <button className="btn btn-primary" onClick={() => viewDetail(best.id)}>
-                    Vezi profilul complet
-                  </button>
-                </div>
-
-                {top5.length > 1 && (
-                  <div className="admin-card">
-                    <h2>Top 5 candidati</h2>
-                    <table className="admin-table">
-                      <thead>
-                        <tr>
-                          <th>Rank</th>
-                          <th>Nume</th>
-                          <th>Clasa</th>
-                          <th>Scor</th>
-                          <th>Timp</th>
-                          <th>Recomandare</th>
-                          <th></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {top5.map((a) => (
-                          <tr key={a.id}>
-                            <td>
-                              <strong>#{a.rank}</strong>
-                            </td>
-                            <td>{a.full_name}</td>
-                            <td>
-                              <span
-                                className="class-badge-sm"
-                                style={{ background: classColor(a.classification) }}
-                              >
-                                {a.classification}
-                              </span>
-                            </td>
-                            <td>{a.score_pct}%</td>
-                            <td>{a.completion_time_formatted}</td>
-                            <td className="recommendation-text">{a.recommendation}</td>
-                            <td>
-                              <button
-                                className="btn btn-small"
-                                onClick={() => viewDetail(a.id)}
-                              >
-                                Detalii
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="admin-card" style={{ textAlign: 'center', padding: 60 }}>
-                <p style={{ color: '#6b7280' }}>Niciun aplicant inca. Recomandarea va aparea dupa prima aplicare.</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── DETAIL TAB ── */}
-        {tab === 'detail' && detail && (
-          <div className="admin-section">
-            <button
-              className="btn btn-secondary"
-              onClick={() => setTab('applicants')}
-              style={{ marginBottom: 16 }}
-            >
-              &larr; Inapoi la lista
-            </button>
-
-            <div className="admin-card">
-              <div className="detail-header">
-                <div>
-                  <h2>{detail.full_name}</h2>
-                  <p className="admin-subtitle">{detail.email} | {detail.phone}</p>
-                </div>
-                <div
-                  className="detail-class-badge"
-                  style={{ background: classColor(detail.classification) }}
-                >
-                  <div className="detail-class-letter">{detail.classification}</div>
-                  <div className="detail-class-score">{detail.score_pct}%</div>
-                </div>
-              </div>
-
-              <div className="detail-grid">
-                <div className="detail-item"><span>Oras</span><strong>{detail.city || '-'}</strong></div>
-                <div className="detail-item"><span>Experienta totala</span><strong>{detail.experience_years} ani</strong></div>
-                <div className="detail-item"><span>Experienta Corpus</span><strong>{detail.corpus_years} ani</strong></div>
-                <div className="detail-item"><span>Rol actual</span><strong>{detail.current_role || '-'}</strong></div>
-                <div className="detail-item"><span>Salariu dorit</span><strong>{detail.expected_salary || '-'}</strong></div>
-                <div className="detail-item"><span>Disponibil din</span><strong>{detail.available_from || '-'}</strong></div>
-                <div className="detail-item"><span>Relocare</span><strong>{detail.relocate ? 'Da' : 'Nu'}</strong></div>
-                <div className="detail-item"><span>Timp completare</span><strong>{detail.completion_time_formatted}</strong></div>
-                <div className="detail-item"><span>Data aplicare</span><strong>{new Date(detail.created_at).toLocaleString('ro-RO')}</strong></div>
-                <div className="detail-item"><span>Portfolio link</span><strong>{detail.portfolio_link || '-'}</strong></div>
-                {detail.portfolio_file && (
-                  <div className="detail-item">
-                    <span>Portfolio fisier</span>
-                    <a href={`${API}/uploads/${detail.portfolio_file}`} target="_blank" rel="noreferrer">
-                      Descarca
-                    </a>
-                  </div>
-                )}
-                <div className="detail-item"><span>LinkedIn</span><strong>{detail.linkedin || '-'}</strong></div>
-              </div>
-
-              <div className="detail-motivation">
-                <h3>Motivatie</h3>
-                <p>{detail.motivation}</p>
-              </div>
-
-              <div className="detail-answers">
-                <h3>Raspunsuri Mini-Interviu ({detail.interview_score}/{detail.max_score} puncte)</h3>
-                <table className="admin-table">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Intrebare</th>
-                      <th>Raspuns</th>
-                      <th>Punctaj</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {detail.interview_answers.map((a, i) => (
-                      <tr key={i}>
-                        <td>{i + 1}</td>
-                        <td>{a.question}</td>
-                        <td>{a.selectedAnswer}</td>
-                        <td>
-                          <strong style={{ color: a.points >= a.maxPoints * 0.6 ? '#16a34a' : a.points > 0 ? '#ca8a04' : '#dc2626' }}>
-                            {a.points}/{a.maxPoints}
-                          </strong>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )
