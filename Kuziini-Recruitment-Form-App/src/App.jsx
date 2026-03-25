@@ -1,4 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import MiniInterview from './MiniInterview'
+import AdminDashboard from './AdminDashboard'
+import AudioPlayer from './AudioPlayer'
 
 const initialForm = {
   fullName: '',
@@ -17,6 +20,63 @@ const initialForm = {
   gdpr: false,
 }
 
+// ── Scroll reveal hook ──
+function useReveal() {
+  const ref = useRef(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add('visible')
+          observer.unobserve(el)
+        }
+      },
+      { threshold: 0.1 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+  return ref
+}
+
+function Reveal({ children, className = '', delay = 0 }) {
+  const ref = useReveal()
+  return (
+    <div ref={ref} className={`reveal ${delay ? `reveal-delay-${delay}` : ''} ${className}`}>
+      {children}
+    </div>
+  )
+}
+
+// ── Cursor glow effect ──
+function CursorGlow() {
+  const ref = useRef(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el || window.matchMedia('(max-width: 768px)').matches) return
+    let raf
+    function onMove(e) {
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(() => {
+        el.style.left = e.clientX + 'px'
+        el.style.top = e.clientY + 'px'
+        el.classList.add('active')
+      })
+    }
+    function onLeave() { el.classList.remove('active') }
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseleave', onLeave)
+    return () => {
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseleave', onLeave)
+      cancelAnimationFrame(raf)
+    }
+  }, [])
+  return <div ref={ref} className="cursor-glow" />
+}
+
 function Field({ label, required, error, children }) {
   return (
     <div className="field">
@@ -30,24 +90,26 @@ function Field({ label, required, error, children }) {
 }
 
 export default function App() {
+  const [isAdmin, setIsAdmin] = useState(window.location.hash === '#admin')
   const [form, setForm] = useState(initialForm)
   const [errors, setErrors] = useState({})
-  const [submitted, setSubmitted] = useState(false)
+  const [step, setStep] = useState('form')
+  const [result, setResult] = useState(null)
+  const startTimeRef = useRef(Date.now())
+
+  useEffect(() => {
+    function onHash() { setIsAdmin(window.location.hash === '#admin') }
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
+
+  if (isAdmin) return <AdminDashboard />
 
   const completion = useMemo(() => {
     const visibleFields = [
-      'fullName',
-      'phone',
-      'email',
-      'city',
-      'experienceYears',
-      'corpusYears',
-      'currentRole',
-      'portfolio',
-      'linkedin',
-      'motivation',
-      'expectedSalary',
-      'availableFrom',
+      'fullName', 'phone', 'email', 'city', 'experienceYears',
+      'corpusYears', 'currentRole', 'portfolio', 'linkedin',
+      'motivation', 'expectedSalary', 'availableFrom',
     ]
     const filled = visibleFields.filter((key) => String(form[key]).trim() !== '').length + (form.gdpr ? 1 : 0)
     return Math.round((filled / (visibleFields.length + 1)) * 100)
@@ -60,13 +122,13 @@ export default function App() {
 
   function validate() {
     const nextErrors = {}
-    if (!form.fullName.trim()) nextErrors.fullName = 'Completează numele complet.'
-    if (!form.phone.trim()) nextErrors.phone = 'Completează telefonul.'
-    if (!form.email.trim()) nextErrors.email = 'Completează emailul.'
-    if (!form.experienceYears.trim()) nextErrors.experienceYears = 'Completează experiența totală.'
-    if (!form.corpusYears.trim()) nextErrors.corpusYears = 'Completează experiența în Corpus Solution.'
-    if (!form.motivation.trim()) nextErrors.motivation = 'Spune-ne pe scurt experiența ta relevantă.'
-    if (!form.gdpr) nextErrors.gdpr = 'Este necesar acordul pentru prelucrarea datelor.'
+    if (!form.fullName.trim()) nextErrors.fullName = 'Numele complet este obligatoriu.'
+    if (!form.phone.trim()) nextErrors.phone = 'Telefonul este obligatoriu.'
+    if (!form.email.trim()) nextErrors.email = 'Email-ul este obligatoriu.'
+    if (!form.experienceYears.trim()) nextErrors.experienceYears = 'Experienta totala este obligatorie.'
+    if (!form.corpusYears.trim()) nextErrors.corpusYears = 'Experienta in Corpus este obligatorie.'
+    if (!form.motivation.trim()) nextErrors.motivation = 'Motivatia este obligatorie.'
+    if (!form.gdpr) nextErrors.gdpr = 'Acordul GDPR este obligatoriu.'
     setErrors(nextErrors)
     return Object.keys(nextErrors).length === 0
   }
@@ -74,187 +136,260 @@ export default function App() {
   function handleSubmit(event) {
     event.preventDefault()
     if (!validate()) return
+    setStep('interview')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
-    // Pregătit pentru integrare ulterioară cu Supabase / Firebase / Formspree
-    console.log('Application payload:', form)
-    setSubmitted(true)
+  function handleInterviewComplete(interviewResult) {
+    setResult(interviewResult)
+    setStep('success')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function handleInterviewBack() {
+    setStep('form')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   function resetForm() {
     setForm(initialForm)
     setErrors({})
-    setSubmitted(false)
+    setResult(null)
+    setStep('form')
+    startTimeRef.current = Date.now()
   }
 
-  if (submitted) {
+  // ── STEP: INTERVIEW ──
+  if (step === 'interview') {
     return (
-      <div className="page">
-        <div className="container success-wrap">
-          <section className="card success-card">
-            <div className="success-icon">✓</div>
-            <h1>Aplicare trimisă</h1>
-            <p>
-              Mulțumim! Candidatura pentru poziția de <strong>Proiectant Mobilier – Corpus Solution 3D</strong> a fost
-              înregistrată.
-            </p>
-
-            <div className="summary-grid">
-              <div className="summary-box">
-                <span>Nume</span>
-                <strong>{form.fullName}</strong>
-              </div>
-              <div className="summary-box">
-                <span>Email</span>
-                <strong>{form.email}</strong>
-              </div>
-              <div className="summary-box">
-                <span>Telefon</span>
-                <strong>{form.phone}</strong>
-              </div>
-              <div className="summary-box">
-                <span>Experiență Corpus</span>
-                <strong>{form.corpusYears} ani</strong>
-              </div>
-            </div>
-
-            <button className="btn btn-primary" onClick={resetForm}>
-              Trimite altă aplicare
-            </button>
-          </section>
-        </div>
-      </div>
+      <>
+        <CursorGlow />
+        <AudioPlayer />
+        <MiniInterview
+          formData={form}
+          startTime={startTimeRef.current}
+          onComplete={handleInterviewComplete}
+          onBack={handleInterviewBack}
+        />
+      </>
     )
   }
 
-  return (
-    <div className="page">
-      <div className="container layout">
-        <section className="card main-card">
-          <div className="badges">
-            <span className="badge badge-brand">Kuziini</span>
-            <span className="badge">București</span>
-            <span className="badge">Corpus Solution 3D</span>
+  // ── STEP: SUCCESS ──
+  if (step === 'success') {
+    const classColor =
+      result?.classification === 'A'
+        ? '#c9a84c'
+        : result?.classification === 'B'
+        ? '#94a3b8'
+        : result?.classification === 'C'
+        ? '#78716c'
+        : '#6b7280'
+
+    return (
+      <>
+        <CursorGlow />
+        <AudioPlayer />
+        <div className="page">
+          <div className="container success-wrap">
+            <Reveal>
+              <section className="card success-card">
+                <div className="success-icon">&#10003;</div>
+                <h1>Aplicare trimisa cu succes</h1>
+                <p>
+                  Multumim, <strong>{form.fullName}</strong>. Candidatura ta pentru pozitia de{' '}
+                  <strong>Proiectant Mobilier &ndash; Corpus Solution 3D</strong> a fost inregistrata.
+                </p>
+
+                <div className="classification-badge" style={{ background: classColor }}>
+                  <span className="classification-letter">{result?.classification}</span>
+                  <span className="classification-label">{result?.classificationLabel}</span>
+                </div>
+
+                <div className="score-display">
+                  <div className="score-number">{result?.score}</div>
+                  <div className="score-max">/ {result?.maxScore} puncte</div>
+                </div>
+
+                <div className="summary-grid">
+                  <div className="summary-box">
+                    <span>Nume</span>
+                    <strong>{form.fullName}</strong>
+                  </div>
+                  <div className="summary-box">
+                    <span>Email</span>
+                    <strong>{form.email}</strong>
+                  </div>
+                  <div className="summary-box">
+                    <span>Telefon</span>
+                    <strong>{form.phone}</strong>
+                  </div>
+                  <div className="summary-box">
+                    <span>Experienta Corpus</span>
+                    <strong>{form.corpusYears} ani</strong>
+                  </div>
+                </div>
+
+                <p className="success-note">
+                  Un email cu datele tale a fost trimis echipei Kuziini. Vei fi contactat in cel mai scurt timp.
+                </p>
+
+                <button className="btn btn-primary" onClick={resetForm}>
+                  Trimite alta aplicare
+                </button>
+              </section>
+            </Reveal>
           </div>
+        </div>
+      </>
+    )
+  }
 
-          <h1>Aplică pentru rolul de Proiectant Mobilier</h1>
-          <p className="lead">
-            Căutăm un profesionist cu experiență reală în proiectare mobilier și lucru în Corpus Solution 3D, cu atenție
-            la execuție, materiale și logică de producție.
-          </p>
+  // ── STEP: FORM ──
+  return (
+    <>
+      <CursorGlow />
+      <AudioPlayer />
+      <div className="page">
+        <div className="container layout">
+          <section className="card main-card">
+            <Reveal>
+              <div className="badges">
+                <span className="badge badge-brand">Kuziini</span>
+                <span className="badge">Bucuresti</span>
+                <span className="badge">Corpus Solution 3D</span>
+              </div>
+            </Reveal>
 
-          <form onSubmit={handleSubmit} className="form-grid">
-            <div className="two-cols">
-              <Field label="Nume complet" required error={errors.fullName}>
-                <input value={form.fullName} onChange={(e) => updateField('fullName', e.target.value)} placeholder="Ex: Andrei Popescu" />
-              </Field>
-              <Field label="Telefon" required error={errors.phone}>
-                <input value={form.phone} onChange={(e) => updateField('phone', e.target.value)} placeholder="Ex: 07xx xxx xxx" />
-              </Field>
-            </div>
+            <Reveal delay={1}>
+              <h1>Aplica pentru rolul de Proiectant Mobilier</h1>
+            </Reveal>
 
-            <div className="two-cols">
-              <Field label="Email" required error={errors.email}>
-                <input type="email" value={form.email} onChange={(e) => updateField('email', e.target.value)} placeholder="Ex: nume@email.com" />
-              </Field>
-              <Field label="Oraș">
-                <input value={form.city} onChange={(e) => updateField('city', e.target.value)} placeholder="Ex: București" />
-              </Field>
-            </div>
+            <Reveal delay={2}>
+              <p className="lead">
+                Cautam un profesionist cu experienta reala in proiectare mobilier si lucru in Corpus Solution 3D, cu atentie
+                la executie, materiale si logica de productie.
+              </p>
+              <div className="gold-line" />
+            </Reveal>
 
-            <div className="two-cols">
-              <Field label="Experiență totală în mobilier (ani)" required error={errors.experienceYears}>
-                <input value={form.experienceYears} onChange={(e) => updateField('experienceYears', e.target.value)} placeholder="Ex: 4" />
-              </Field>
-              <Field label="Experiență în Corpus Solution (ani)" required error={errors.corpusYears}>
-                <input value={form.corpusYears} onChange={(e) => updateField('corpusYears', e.target.value)} placeholder="Ex: 2" />
-              </Field>
-            </div>
+            <Reveal delay={3}>
+              <form onSubmit={handleSubmit} className="form-grid">
+                <div className="two-cols">
+                  <Field label="Nume complet" required error={errors.fullName}>
+                    <input value={form.fullName} onChange={(e) => updateField('fullName', e.target.value)} placeholder="Andrei Popescu" />
+                  </Field>
+                  <Field label="Telefon" required error={errors.phone}>
+                    <input value={form.phone} onChange={(e) => updateField('phone', e.target.value)} placeholder="07xx xxx xxx" />
+                  </Field>
+                </div>
 
-            <div className="two-cols">
-              <Field label="Rol actual">
-                <input value={form.currentRole} onChange={(e) => updateField('currentRole', e.target.value)} placeholder="Ex: Proiectant mobilier senior" />
-              </Field>
-              <Field label="Disponibil din">
-                <input value={form.availableFrom} onChange={(e) => updateField('availableFrom', e.target.value)} placeholder="Ex: imediat / 30 zile" />
-              </Field>
-            </div>
+                <div className="two-cols">
+                  <Field label="Email" required error={errors.email}>
+                    <input type="email" value={form.email} onChange={(e) => updateField('email', e.target.value)} placeholder="nume@email.com" />
+                  </Field>
+                  <Field label="Oras">
+                    <input value={form.city} onChange={(e) => updateField('city', e.target.value)} placeholder="Bucuresti" />
+                  </Field>
+                </div>
 
-            <div className="two-cols">
-              <Field label="Portofoliu / CV link">
-                <input value={form.portfolio} onChange={(e) => updateField('portfolio', e.target.value)} placeholder="Link Drive / PDF / website" />
-              </Field>
-              <Field label="LinkedIn">
-                <input value={form.linkedin} onChange={(e) => updateField('linkedin', e.target.value)} placeholder="Link profil LinkedIn" />
-              </Field>
-            </div>
+                <div className="two-cols">
+                  <Field label="Experienta totala in mobilier (ani)" required error={errors.experienceYears}>
+                    <input value={form.experienceYears} onChange={(e) => updateField('experienceYears', e.target.value)} placeholder="4" />
+                  </Field>
+                  <Field label="Experienta in Corpus Solution (ani)" required error={errors.corpusYears}>
+                    <input value={form.corpusYears} onChange={(e) => updateField('corpusYears', e.target.value)} placeholder="2" />
+                  </Field>
+                </div>
 
-            <div className="two-cols">
-              <Field label="Salariu net dorit">
-                <input value={form.expectedSalary} onChange={(e) => updateField('expectedSalary', e.target.value)} placeholder="Ex: 7000 RON" />
-              </Field>
-              <Field label="CV / Portofoliu atașat">
-                <div className="upload-placeholder">Variantă demo UI – zona de upload se poate conecta la Supabase / Firebase Storage</div>
-              </Field>
-            </div>
+                <div className="two-cols">
+                  <Field label="Rol actual">
+                    <input value={form.currentRole} onChange={(e) => updateField('currentRole', e.target.value)} placeholder="Proiectant mobilier senior" />
+                  </Field>
+                  <Field label="Disponibil din">
+                    <input value={form.availableFrom} onChange={(e) => updateField('availableFrom', e.target.value)} placeholder="Imediat / 30 zile" />
+                  </Field>
+                </div>
 
-            <Field label="Experiență relevantă / motivație" required error={errors.motivation}>
-              <textarea
-                rows="6"
-                value={form.motivation}
-                onChange={(e) => updateField('motivation', e.target.value)}
-                placeholder="Spune-ne ce tipuri de proiecte ai făcut, cât de bine stăpânești Corpus Solution și partea de execuție."
-              />
-            </Field>
+                <div className="two-cols">
+                  <Field label="Portofoliu / CV link">
+                    <input value={form.portfolio} onChange={(e) => updateField('portfolio', e.target.value)} placeholder="Link Drive / PDF / website" />
+                  </Field>
+                  <Field label="LinkedIn">
+                    <input value={form.linkedin} onChange={(e) => updateField('linkedin', e.target.value)} placeholder="Link profil LinkedIn" />
+                  </Field>
+                </div>
 
-            <div className="checks">
-              <label className="check-row">
-                <input type="checkbox" checked={form.relocate} onChange={(e) => updateField('relocate', e.target.checked)} />
-                <span>Sunt deschis(ă) la lucru on-site / hibrid în București.</span>
-              </label>
+                <Field label="Salariu net dorit">
+                  <input value={form.expectedSalary} onChange={(e) => updateField('expectedSalary', e.target.value)} placeholder="4800 RON" />
+                </Field>
 
-              <label className="check-row">
-                <input type="checkbox" checked={form.gdpr} onChange={(e) => updateField('gdpr', e.target.checked)} />
-                <span>Sunt de acord cu prelucrarea datelor mele pentru procesul de recrutare Kuziini. *</span>
-              </label>
-              {errors.gdpr ? <div className="error">{errors.gdpr}</div> : null}
-            </div>
+                <Field label="Experienta relevanta / motivatie" required error={errors.motivation}>
+                  <textarea
+                    rows="6"
+                    value={form.motivation}
+                    onChange={(e) => updateField('motivation', e.target.value)}
+                    placeholder="Spune-ne ce tipuri de proiecte ai facut, cat de bine stapanesti Corpus Solution si partea de executie."
+                  />
+                </Field>
 
-            <div className="form-footer">
-              <span>Completare formular: {completion}%</span>
-              <button type="submit" className="btn btn-primary">Trimite aplicarea</button>
-            </div>
-          </form>
-        </section>
+                <div className="checks">
+                  <label className="check-row">
+                    <input type="checkbox" checked={form.relocate} onChange={(e) => updateField('relocate', e.target.checked)} />
+                    <span>Sunt deschis(a) la lucru on-site / hibrid in Bucuresti.</span>
+                  </label>
 
-        <aside className="side-column">
-          <section className="card side-card">
-            <h2>Rolul</h2>
-            <ul>
-              <li>Proiectare corpuri și ansambluri de mobilier premium</li>
-              <li>Liste de materiale și accesorii pentru producție</li>
-              <li>Optimizare tehnică pentru execuție corectă</li>
-              <li>Colaborare directă cu designul și producția</li>
-            </ul>
+                  <label className="check-row">
+                    <input type="checkbox" checked={form.gdpr} onChange={(e) => updateField('gdpr', e.target.checked)} />
+                    <span>Sunt de acord cu prelucrarea datelor mele pentru procesul de recrutare Kuziini. *</span>
+                  </label>
+                  {errors.gdpr ? <div className="error">{errors.gdpr}</div> : null}
+                </div>
+
+                <div className="form-footer">
+                  <span>Completare: {completion}%</span>
+                  <button type="submit" className="btn btn-primary">Confirma si continua</button>
+                </div>
+              </form>
+            </Reveal>
           </section>
 
-          <section className="card side-card">
-            <h2>Ce caută Kuziini</h2>
-            <ul>
-              <li>experiență reală în Corpus Solution</li>
-              <li>cunoștințe de accesorii și logică de montaj</li>
-              <li>atenție la detaliu și gândire de producție</li>
-              <li>seriozitate, viteză și autonomie</li>
-            </ul>
-          </section>
+          <aside className="side-column">
+            <Reveal delay={2}>
+              <section className="card side-card">
+                <h2>Rolul</h2>
+                <ul>
+                  <li>Proiectare corpuri si ansambluri de mobilier premium</li>
+                  <li>Liste de materiale si accesorii pentru productie</li>
+                  <li>Optimizare tehnica pentru executie corecta</li>
+                  <li>Colaborare directa cu designul si productia</li>
+                </ul>
+              </section>
+            </Reveal>
 
-          <section className="card side-card">
-            <h2>Contact rapid</h2>
-            <p><strong>Email:</strong> recrutare@kuziini.ro</p>
-            <p><strong>Telefon:</strong> +40 7xx xxx xxx</p>
-            <p><strong>Contact:</strong> Echipa Kuziini Recruitment</p>
-          </section>
-        </aside>
+            <Reveal delay={3}>
+              <section className="card side-card">
+                <h2>Ce cauta Kuziini</h2>
+                <ul>
+                  <li>Experienta reala in Corpus Solution</li>
+                  <li>Cunostinte de accesorii si logica de montaj</li>
+                  <li>Atentie la detaliu si gandire de productie</li>
+                  <li>Seriozitate, viteza si autonomie</li>
+                </ul>
+              </section>
+            </Reveal>
+
+            <Reveal delay={4}>
+              <section className="card side-card">
+                <h2>Contact</h2>
+                <p><strong>Email:</strong> recrutare@kuziini.ro</p>
+                <p><strong>Telefon:</strong> +40 7xx xxx xxx</p>
+                <p><strong>Echipa:</strong> Kuziini Recruitment</p>
+              </section>
+            </Reveal>
+          </aside>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

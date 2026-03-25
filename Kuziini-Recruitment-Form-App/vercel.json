@@ -1,0 +1,12 @@
+{
+  "buildCommand": "vite build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/api/admin/applicant", "destination": "/api/admin/applicant" },
+    { "source": "/api/admin/applicants", "destination": "/api/admin/applicants" },
+    { "source": "/api/admin/stats", "destination": "/api/admin/stats" },
+    { "source": "/api/admin/best", "destination": "/api/admin/best" },
+    { "source": "/api/apply", "destination": "/api/apply" }
+  ]
+}
