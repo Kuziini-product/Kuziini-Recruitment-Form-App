@@ -532,76 +532,94 @@ a:hover {
   font-size: 0.95rem;
 }
 
-/* ── Experience 360 button ── */
+/* ── Experience 360 Card ── */
 
-.experience-btn {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 20px 24px;
-  background: linear-gradient(135deg, #1a1a1a, #252525);
-  border: 1px solid var(--gold);
-  border-radius: 2px;
-  color: var(--cream);
-  text-decoration: none;
-  transition: all 0.4s ease;
+.experience-btn-card {
+  display: block;
   position: relative;
+  border-radius: 2px;
   overflow: hidden;
+  text-decoration: none;
+  min-height: 180px;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
-.experience-btn::before {
-  content: '';
+.experience-btn-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(201, 168, 76, 0.2);
+}
+
+.experience-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, transparent 30%, rgba(201, 168, 76, 0.1) 50%, transparent 70%);
-  transform: translateX(-100%);
+  background:
+    url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=80') center/cover no-repeat;
   transition: transform 0.6s ease;
 }
 
-.experience-btn:hover::before {
-  transform: translateX(100%);
+.experience-btn-card:hover .experience-bg {
+  transform: scale(1.08);
 }
 
-.experience-btn:hover {
-  border-color: var(--gold-light);
-  box-shadow: 0 0 30px rgba(201, 168, 76, 0.15);
-  transform: translateY(-2px);
-  color: var(--white);
+.experience-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(10, 10, 10, 0.85) 0%,
+    rgba(10, 10, 10, 0.6) 50%,
+    rgba(201, 168, 76, 0.15) 100%
+  );
+  transition: opacity 0.4s ease;
 }
 
-.experience-icon {
-  font-size: 1.8rem;
-  line-height: 1;
-  flex-shrink: 0;
+.experience-btn-card:hover .experience-overlay {
+  opacity: 0.9;
 }
 
-.experience-text {
+.experience-card-content {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  text-align: center;
+  min-height: 180px;
 }
 
-.experience-text strong {
-  font-size: 0.9rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  color: var(--gold);
+.experience-card-icon {
+  font-size: 2.2rem;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
 }
 
-.experience-text span {
+.experience-card-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 0.02em;
+  margin-bottom: 4px;
+}
+
+.experience-card-sub {
   font-size: 0.75rem;
-  color: var(--silver);
-  margin-top: 2px;
+  color: var(--gold-light);
+  letter-spacing: 0.08em;
 }
 
-.experience-arrow {
-  font-size: 1.2rem;
+.experience-card-arrow {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 1.1rem;
   color: var(--gold);
-  flex-shrink: 0;
   transition: transform 0.3s ease;
 }
 
-.experience-btn:hover .experience-arrow {
+.experience-btn-card:hover .experience-card-arrow {
   transform: translate(3px, -3px);
 }
 

@@ -575,13 +575,15 @@ export default function App() {
 
             <Reveal>
               <a href="https://www.kuziini.ro/tur360/?startscene=0&startlookat=284.26,-2.18,119.19,0,0;"
-                target="_blank" rel="noreferrer" className="experience-btn">
-                <span className="experience-icon">&#127760;</span>
-                <span className="experience-text">
-                  <strong>Experienta 360</strong>
-                  <span>Exploreaza showroom-ul Kuziini</span>
-                </span>
-                <span className="experience-arrow">&#8599;</span>
+                target="_blank" rel="noreferrer" className="experience-btn-card">
+                <div className="experience-bg" />
+                <div className="experience-overlay" />
+                <div className="experience-card-content">
+                  <span className="experience-card-icon">&#127760;</span>
+                  <strong className="experience-card-title">Intra in universul Kuziini</strong>
+                  <span className="experience-card-sub">Tur virtual 360° prin showroom</span>
+                  <span className="experience-card-arrow">&#8599;</span>
+                </div>
               </a>
             </Reveal>
 
