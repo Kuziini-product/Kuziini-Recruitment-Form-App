@@ -263,18 +263,13 @@ export default function App() {
         <div className="container layout">
           <section className="card main-card">
             <Reveal>
-              <div className="badges">
-                <span className="badge badge-brand">Kuziini</span>
-                <span className="badge">Bucuresti</span>
-                <span className="badge">Corpus Solutions 3D</span>
-              </div>
-            </Reveal>
-
-            <Reveal delay={1}>
               <div className="logo-wrap">
                 <img src="/logo-kuziini.png" alt="Kuziini" className="logo-img" />
                 <div className="logo-flash" />
               </div>
+            </Reveal>
+
+            <Reveal delay={1}>
               <h1>Aplica pentru rolul de Proiectant Mobilier</h1>
             </Reveal>
 
