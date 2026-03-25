@@ -41,21 +41,21 @@ export default function AudioPlayer() {
         events: {
           onReady: () => {
             playerRef.current.setVolume(0)
-            playerRef.current.seekTo(START_SECONDS, true)
-            playerRef.current.playVideo()
-            // Auto fade in
-            let vol = 0
-            fadeInterval.current = setInterval(() => {
-              vol += 1
-              if (vol >= 50) {
-                vol = 50
-                clearInterval(fadeInterval.current)
-              }
-              try { playerRef.current.setVolume(vol) } catch {}
-            }, 60)
             setReady(true)
-            setPlaying(true)
-            setTimeout(() => setVisible(false), 5000)
+
+            // Try autoplay immediately
+            tryAutoPlay()
+
+            // Also listen for first user interaction (touch/click/key)
+            function onFirstInteraction() {
+              tryAutoPlay()
+              document.removeEventListener('click', onFirstInteraction)
+              document.removeEventListener('touchstart', onFirstInteraction)
+              document.removeEventListener('keydown', onFirstInteraction)
+            }
+            document.addEventListener('click', onFirstInteraction, { once: true })
+            document.addEventListener('touchstart', onFirstInteraction, { once: true })
+            document.addEventListener('keydown', onFirstInteraction, { once: true })
           },
           onStateChange: (e) => {
             // When video ends and loops, seek back to start point
@@ -84,6 +84,28 @@ export default function AudioPlayer() {
         if (prev) prev()
         createPlayer()
       }
+    }
+
+    function tryAutoPlay() {
+      const p = playerRef.current
+      if (!p || playing) return
+      try {
+        p.seekTo(START_SECONDS, true)
+        p.playVideo()
+        p.setVolume(0)
+        let vol = 0
+        if (fadeInterval.current) clearInterval(fadeInterval.current)
+        fadeInterval.current = setInterval(() => {
+          vol += 1
+          if (vol >= 50) {
+            vol = 50
+            clearInterval(fadeInterval.current)
+          }
+          try { p.setVolume(vol) } catch {}
+        }, 60)
+        setPlaying(true)
+        setTimeout(() => setVisible(false), 5000)
+      } catch {}
     }
 
     return () => {
