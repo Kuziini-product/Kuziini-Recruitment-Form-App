@@ -333,6 +333,7 @@ export default function App() {
         <CursorGlow />
         <MusicPlayer genre={form.musicGenre} />
         <div className="page">
+          <button className="page-back-btn" onClick={() => { setStep('form'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} title="Inapoi">&#8592;</button>
           <div className="container success-wrap">
             <section className="card interview-card">
               <div style={{ textAlign: 'center', padding: '20px 0' }}>
@@ -401,6 +402,7 @@ export default function App() {
         <CursorGlow />
         <MusicPlayer genre={form.musicGenre} />
         <div className="page">
+          <button className="page-back-btn" onClick={resetForm} title="Inapoi">&#8592;</button>
           <div className="container success-wrap">
             <Reveal>
               <section className="card success-card">
@@ -438,6 +440,7 @@ export default function App() {
       <MusicPlayer genre={form.musicGenre} />
       {loginModal}
       <div className="page">
+        <button className="page-back-btn" onClick={() => { setStep('welcome'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} title="Inapoi">&#8592;</button>
         <div className="container layout">
           <section className="card main-card">
             <Reveal>

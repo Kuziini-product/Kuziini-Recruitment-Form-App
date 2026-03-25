@@ -138,6 +138,33 @@ a:hover {
   z-index: 1;
 }
 
+.page-back-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 100;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(26, 26, 26, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--steel);
+  color: var(--silver);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.page-back-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(201, 168, 76, 0.08);
+}
+
 .container {
   max-width: 1320px;
   margin: 0 auto;
