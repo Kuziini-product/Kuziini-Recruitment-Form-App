@@ -185,7 +185,30 @@ export default function AdminDashboard({ onExit }) {
   const [musicClassical, setMusicClassical] = useState(() => localStorage.getItem('kuziini_music_classical') || 'https://www.youtube.com/watch?v=hN_q-_nGv4U')
   const [musicLofi, setMusicLofi] = useState(() => localStorage.getItem('kuziini_music_lofi') || 'https://www.youtube.com/watch?v=5qap5aO4i9A')
   const [musicJazz, setMusicJazz] = useState(() => localStorage.getItem('kuziini_music_jazz') || 'https://www.youtube.com/watch?v=Dx5qFachd3A')
+  const [startClassical, setStartClassical] = useState(() => localStorage.getItem('kuziini_start_classical') || '48')
+  const [startLofi, setStartLofi] = useState(() => localStorage.getItem('kuziini_start_lofi') || '0')
+  const [startJazz, setStartJazz] = useState(() => localStorage.getItem('kuziini_start_jazz') || '0')
   const [settingsSaved, setSettingsSaved] = useState(false)
+
+  const [previewIframe, setPreviewIframe] = useState(null)
+
+  function previewMusic(url, startSec) {
+    // Extract ID
+    const input = url || ''
+    let id = input
+    if (!/^[a-zA-Z0-9_-]{11}$/.test(input)) {
+      const m = input.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/)
+      if (m) id = m[1]
+    }
+    if (!id) return
+    const sec = parseInt(startSec) || 0
+    // Toggle off if same
+    if (previewIframe === id) {
+      setPreviewIframe(null)
+      return
+    }
+    setPreviewIframe(id + '|' + sec)
+  }
 
   function saveSettings() {
     localStorage.setItem('kuziini_notif_email', notifEmail)
@@ -193,6 +216,9 @@ export default function AdminDashboard({ onExit }) {
     localStorage.setItem('kuziini_music_classical', musicClassical)
     localStorage.setItem('kuziini_music_lofi', musicLofi)
     localStorage.setItem('kuziini_music_jazz', musicJazz)
+    localStorage.setItem('kuziini_start_classical', startClassical)
+    localStorage.setItem('kuziini_start_lofi', startLofi)
+    localStorage.setItem('kuziini_start_jazz', startJazz)
     setSettingsSaved(true)
     setTimeout(() => setSettingsSaved(false), 3000)
   }
@@ -494,33 +520,42 @@ export default function AdminDashboard({ onExit }) {
             </div>
 
             <h3 className="settings-section-title" style={{ marginTop: 24 }}>Melodii pe gen muzical (link YouTube)</h3>
-            <div className="settings-row">
+            <div className="music-setting-row">
               <label>🎻 Clasica</label>
-              <input
-                type="url"
-                value={musicClassical}
-                onChange={(e) => setMusicClassical(e.target.value)}
-                placeholder="https://www.youtube.com/watch?v=..."
-              />
+              <input type="url" value={musicClassical} onChange={(e) => setMusicClassical(e.target.value)} placeholder="https://www.youtube.com/watch?v=..." />
+              <input type="number" min="0" value={startClassical} onChange={(e) => setStartClassical(e.target.value)} className="start-sec-input" title="Secunda start" />
+              <span className="start-sec-label">sec</span>
+              <button type="button" className="btn btn-small btn-play" onClick={() => previewMusic(musicClassical, startClassical)}>&#9654; Play</button>
             </div>
-            <div className="settings-row">
+            <div className="music-setting-row">
               <label>🎧 Lo-Fi</label>
-              <input
-                type="url"
-                value={musicLofi}
-                onChange={(e) => setMusicLofi(e.target.value)}
-                placeholder="https://www.youtube.com/watch?v=..."
-              />
+              <input type="url" value={musicLofi} onChange={(e) => setMusicLofi(e.target.value)} placeholder="https://www.youtube.com/watch?v=..." />
+              <input type="number" min="0" value={startLofi} onChange={(e) => setStartLofi(e.target.value)} className="start-sec-input" title="Secunda start" />
+              <span className="start-sec-label">sec</span>
+              <button type="button" className="btn btn-small btn-play" onClick={() => previewMusic(musicLofi, startLofi)}>&#9654; Play</button>
             </div>
-            <div className="settings-row">
+            <div className="music-setting-row">
               <label>🎷 Jazz</label>
-              <input
-                type="url"
-                value={musicJazz}
-                onChange={(e) => setMusicJazz(e.target.value)}
-                placeholder="https://www.youtube.com/watch?v=..."
-              />
+              <input type="url" value={musicJazz} onChange={(e) => setMusicJazz(e.target.value)} placeholder="https://www.youtube.com/watch?v=..." />
+              <input type="number" min="0" value={startJazz} onChange={(e) => setStartJazz(e.target.value)} className="start-sec-input" title="Secunda start" />
+              <span className="start-sec-label">sec</span>
+              <button type="button" className="btn btn-small btn-play" onClick={() => previewMusic(musicJazz, startJazz)}>&#9654; Play</button>
             </div>
+
+            {previewIframe && (
+              <div className="music-preview">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <span style={{ fontSize: '0.82rem', color: '#6b7280' }}>Preview melodie (de la sec {previewIframe.split('|')[1]})</span>
+                  <button className="btn btn-small" onClick={() => setPreviewIframe(null)}>&#9632; Stop</button>
+                </div>
+                <iframe
+                  width="100%" height="80"
+                  src={`https://www.youtube.com/embed/${previewIframe.split('|')[0]}?autoplay=1&start=${previewIframe.split('|')[1]}`}
+                  allow="autoplay"
+                  style={{ border: 'none', borderRadius: 8 }}
+                />
+              </div>
+            )}
 
             <div style={{ display: 'flex', alignItems: 'center', marginTop: 16 }}>
               <button className="btn btn-primary" onClick={saveSettings} style={{ padding: '12px 28px' }}>

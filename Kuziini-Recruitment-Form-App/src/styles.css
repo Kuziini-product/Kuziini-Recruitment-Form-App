@@ -2479,6 +2479,80 @@ body.admin-active::after {
   box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.15);
 }
 
+.music-setting-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.music-setting-row label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6b7280;
+  min-width: 100px;
+}
+
+.music-setting-row input[type="url"] {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #111827;
+  background: #fff;
+}
+
+.music-setting-row input[type="url"]:focus {
+  border-color: #c9a84c;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.15);
+}
+
+.start-sec-input {
+  width: 70px !important;
+  padding: 10px 8px !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  font-size: 0.85rem !important;
+  color: #111827 !important;
+  background: #fff !important;
+  text-align: center !important;
+}
+
+.start-sec-input:focus {
+  border-color: #c9a84c !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.15) !important;
+}
+
+.start-sec-label {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  min-width: 24px;
+}
+
+.btn-play {
+  background: #16a34a !important;
+  color: #fff !important;
+  border-color: #16a34a !important;
+  white-space: nowrap;
+}
+
+.btn-play:hover {
+  background: #15803d !important;
+}
+
+.music-preview {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
 .settings-section-title {
   font-size: 0.78rem;
   font-weight: 600;

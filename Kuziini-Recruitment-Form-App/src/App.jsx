@@ -15,9 +15,9 @@ function extractYtId(input) {
 // ── Music genres (reads localStorage for custom YouTube links) ──
 function getGenres() {
   return [
-    { id: 'classical', label: 'Clasica', icon: '🎻', ytId: extractYtId(localStorage.getItem('kuziini_music_classical')) || 'hN_q-_nGv4U', start: 48 },
-    { id: 'lofi', label: 'Lo-Fi', icon: '🎧', ytId: extractYtId(localStorage.getItem('kuziini_music_lofi')) || '5qap5aO4i9A', start: 0 },
-    { id: 'jazz', label: 'Jazz', icon: '🎷', ytId: extractYtId(localStorage.getItem('kuziini_music_jazz')) || 'Dx5qFachd3A', start: 0 },
+    { id: 'classical', label: 'Clasica', icon: '🎻', ytId: extractYtId(localStorage.getItem('kuziini_music_classical')) || 'hN_q-_nGv4U', start: parseInt(localStorage.getItem('kuziini_start_classical')) || 48 },
+    { id: 'lofi', label: 'Lo-Fi', icon: '🎧', ytId: extractYtId(localStorage.getItem('kuziini_music_lofi')) || '5qap5aO4i9A', start: parseInt(localStorage.getItem('kuziini_start_lofi')) || 0 },
+    { id: 'jazz', label: 'Jazz', icon: '🎷', ytId: extractYtId(localStorage.getItem('kuziini_music_jazz')) || 'Dx5qFachd3A', start: parseInt(localStorage.getItem('kuziini_start_jazz')) || 0 },
   ]
 }
 
