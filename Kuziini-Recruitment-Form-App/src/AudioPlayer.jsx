@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 
 /**
- * Invisible YouTube background player for Ludovico Einaudi - Experience.
- * Shows a sleek floating play button. On click, fades in the music.
+ * Background YouTube player for Ludovico Einaudi - Experience.
+ * Starts at 0:45 (the crescendo). Uses a real-sized but offscreen iframe
+ * since browsers block 0x0 players.
  */
-const YOUTUBE_VIDEO_ID = 'hN_q-_nGv4U' // Ludovico Einaudi - Experience
+const YOUTUBE_VIDEO_ID = 'hN_q-_nGv4U'
+const START_SECONDS = 45
 
 export default function AudioPlayer() {
   const [ready, setReady] = useState(false)
@@ -12,39 +14,62 @@ export default function AudioPlayer() {
   const [visible, setVisible] = useState(true)
   const playerRef = useRef(null)
   const fadeInterval = useRef(null)
+  const containerRef = useRef(null)
 
   useEffect(() => {
-    // Load YouTube IFrame API
-    if (!window.YT) {
-      const tag = document.createElement('script')
-      tag.src = 'https://www.youtube.com/iframe_api'
-      document.head.appendChild(tag)
-    }
+    // Prevent duplicate init
+    if (playerRef.current) return
 
-    function initPlayer() {
-      playerRef.current = new window.YT.Player('yt-player-hidden', {
-        height: '0',
-        width: '0',
+    function createPlayer() {
+      if (!containerRef.current || playerRef.current) return
+
+      playerRef.current = new window.YT.Player(containerRef.current, {
+        width: 320,
+        height: 180,
         videoId: YOUTUBE_VIDEO_ID,
         playerVars: {
           autoplay: 0,
           controls: 0,
+          disablekb: 1,
+          fs: 0,
           loop: 1,
+          modestbranding: 1,
           playlist: YOUTUBE_VIDEO_ID,
+          start: START_SECONDS,
+          origin: window.location.origin,
         },
         events: {
           onReady: () => {
             playerRef.current.setVolume(0)
             setReady(true)
           },
+          onStateChange: (e) => {
+            // When video ends and loops, seek back to start point
+            if (e.data === window.YT.PlayerState.PLAYING) {
+              const currentTime = playerRef.current.getCurrentTime()
+              if (currentTime < START_SECONDS - 2) {
+                playerRef.current.seekTo(START_SECONDS, true)
+              }
+            }
+          },
         },
       })
     }
 
     if (window.YT && window.YT.Player) {
-      initPlayer()
+      createPlayer()
     } else {
-      window.onYouTubeIframeAPIReady = initPlayer
+      // Load API if not loaded
+      if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+        const tag = document.createElement('script')
+        tag.src = 'https://www.youtube.com/iframe_api'
+        document.head.appendChild(tag)
+      }
+      const prev = window.onYouTubeIframeAPIReady
+      window.onYouTubeIframeAPIReady = () => {
+        if (prev) prev()
+        createPlayer()
+      }
     }
 
     return () => {
@@ -53,36 +78,41 @@ export default function AudioPlayer() {
   }, [])
 
   function togglePlay() {
-    if (!playerRef.current) return
+    const p = playerRef.current
+    if (!p) return
+
+    if (fadeInterval.current) clearInterval(fadeInterval.current)
 
     if (!playing) {
-      playerRef.current.playVideo()
-      // Fade in volume from 0 to 40 over 3 seconds
+      // Seek to start point and play
+      p.seekTo(START_SECONDS, true)
+      p.playVideo()
+      // Fade in volume 0 -> 50 over 3s
       let vol = 0
+      p.setVolume(0)
       fadeInterval.current = setInterval(() => {
         vol += 1
-        if (vol >= 40) {
-          vol = 40
+        if (vol >= 50) {
+          vol = 50
           clearInterval(fadeInterval.current)
         }
-        playerRef.current.setVolume(vol)
-      }, 75)
+        try { p.setVolume(vol) } catch {}
+      }, 60)
       setPlaying(true)
-
-      // Hide button after 4 seconds
-      setTimeout(() => setVisible(false), 4000)
+      setTimeout(() => setVisible(false), 5000)
     } else {
       // Fade out
-      let vol = playerRef.current.getVolume()
+      let vol = 50
+      try { vol = p.getVolume() } catch {}
       fadeInterval.current = setInterval(() => {
         vol -= 2
         if (vol <= 0) {
           vol = 0
           clearInterval(fadeInterval.current)
-          playerRef.current.pauseVideo()
+          try { p.pauseVideo() } catch {}
         }
-        playerRef.current.setVolume(vol)
-      }, 50)
+        try { p.setVolume(vol) } catch {}
+      }, 40)
       setPlaying(false)
       setVisible(true)
     }
@@ -90,7 +120,21 @@ export default function AudioPlayer() {
 
   return (
     <>
-      <div id="yt-player-hidden" style={{ position: 'fixed', top: -9999, left: -9999 }} />
+      {/* Real-sized iframe, positioned offscreen so browser doesn't block it */}
+      <div
+        style={{
+          position: 'fixed',
+          left: '-9999px',
+          top: '-9999px',
+          width: '320px',
+          height: '180px',
+          opacity: 0.01,
+          pointerEvents: 'none',
+          zIndex: -1,
+        }}
+      >
+        <div ref={containerRef} />
+      </div>
 
       {ready && (
         <button
@@ -125,7 +169,6 @@ export default function AudioPlayer() {
         </button>
       )}
 
-      {/* Hover zone to bring button back */}
       {playing && !visible && (
         <div
           className="audio-hover-zone"
