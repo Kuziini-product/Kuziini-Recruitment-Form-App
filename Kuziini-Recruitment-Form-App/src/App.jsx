@@ -41,25 +41,63 @@ const initialForm = {
   gdpr: false,
 }
 
-// ── YouTube Music Player (hidden) ──
+// ── YouTube Music Player (persistent, never unmounts) ──
 function MusicPlayer({ genre }) {
   const containerRef = useRef(null)
   const playerRef = useRef(null)
+  const currentGenreRef = useRef(null)
+  const apiReadyRef = useRef(false)
 
+  // Load YouTube API once
   useEffect(() => {
-    if (!genre) return
-    const g = getGenres().find((gg) => gg.id === genre)
-    if (!g) return
+    if (window.YT && window.YT.Player) {
+      apiReadyRef.current = true
+      return
+    }
+    if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+      const tag = document.createElement('script')
+      tag.src = 'https://www.youtube.com/iframe_api'
+      document.head.appendChild(tag)
+    }
+    const prev = window.onYouTubeIframeAPIReady
+    window.onYouTubeIframeAPIReady = () => {
+      if (prev) prev()
+      apiReadyRef.current = true
+    }
+  }, [])
 
-    function create() {
-      if (playerRef.current) { try { playerRef.current.destroy() } catch {} }
-      playerRef.current = new window.YT.Player(containerRef.current, {
+  // Play/switch genre
+  useEffect(() => {
+    if (!genre || genre === currentGenreRef.current) return
+    currentGenreRef.current = genre
+
+    function tryCreate() {
+      if (!apiReadyRef.current || !window.YT?.Player) {
+        setTimeout(tryCreate, 500)
+        return
+      }
+      const g = getGenres().find((gg) => gg.id === genre)
+      if (!g) return
+
+      // Destroy previous player
+      if (playerRef.current) {
+        try { playerRef.current.destroy() } catch {}
+        playerRef.current = null
+      }
+
+      // Need a fresh div because YT.Player replaces the element
+      if (containerRef.current) {
+        containerRef.current.innerHTML = '<div id="yt-music"></div>'
+      }
+
+      playerRef.current = new window.YT.Player('yt-music', {
         width: 320, height: 180,
         videoId: g.ytId,
-        playerVars: { autoplay: 1, controls: 0, loop: 1, playlist: g.ytId, start: g.start || 0 },
+        playerVars: { autoplay: 1, controls: 0, loop: 1, playlist: g.ytId, start: g.start || 0, origin: window.location.origin },
         events: {
           onReady: (e) => {
             e.target.setVolume(0)
+            e.target.seekTo(g.start || 0, true)
             e.target.playVideo()
             let vol = 0
             const fade = setInterval(() => {
@@ -72,36 +110,25 @@ function MusicPlayer({ genre }) {
       })
     }
 
-    if (window.YT && window.YT.Player) { create() }
-    else {
-      if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
-        const tag = document.createElement('script')
-        tag.src = 'https://www.youtube.com/iframe_api'
-        document.head.appendChild(tag)
-      }
-      const prev = window.onYouTubeIframeAPIReady
-      window.onYouTubeIframeAPIReady = () => { if (prev) prev(); create() }
-    }
+    tryCreate()
+  }, [genre])
 
-    // Listen for first interaction to unblock autoplay
+  // Listen for first user interaction to unblock autoplay
+  useEffect(() => {
     function onInteract() {
       try { playerRef.current?.playVideo() } catch {}
-      document.removeEventListener('click', onInteract)
-      document.removeEventListener('touchstart', onInteract)
     }
     document.addEventListener('click', onInteract, { once: true })
     document.addEventListener('touchstart', onInteract, { once: true })
-
     return () => {
-      try { playerRef.current?.destroy() } catch {}
-      playerRef.current = null
+      document.removeEventListener('click', onInteract)
+      document.removeEventListener('touchstart', onInteract)
     }
-  }, [genre])
+  }, [])
 
-  if (!genre) return null
   return (
     <div style={{ position: 'fixed', left: -9999, top: -9999, width: 320, height: 180, opacity: 0.01, pointerEvents: 'none', zIndex: -1 }}>
-      <div ref={containerRef} />
+      <div ref={containerRef}><div id="yt-music" /></div>
     </div>
   )
 }
@@ -226,6 +253,9 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
 
+  // Music player rendered always (never unmounts)
+  const musicPlayer = <MusicPlayer genre={form.musicGenre} />
+
   if (isAdmin) return <AdminDashboard onExit={logoutAdmin} />
 
   const loginModal = showLogin && (
@@ -290,7 +320,7 @@ export default function App() {
     return (
       <>
         <CursorGlow />
-        <MusicPlayer genre={form.musicGenre} />
+        {musicPlayer}
         {loginModal}
         <div className="welcome-page">
           <div className="welcome-content">
@@ -342,7 +372,7 @@ export default function App() {
     return (
       <>
         <CursorGlow />
-        <MusicPlayer genre={form.musicGenre} />
+        {musicPlayer}
         <div className="page">
           <button className="page-back-btn" onClick={() => { setStep('form'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} title="Inapoi">&#8592;</button>
           <div className="container success-wrap">
@@ -393,7 +423,7 @@ export default function App() {
     return (
       <>
         <CursorGlow />
-        <MusicPlayer genre={form.musicGenre} />
+        {musicPlayer}
         <MiniInterview
           formData={{ ...form, hasCv: !!cvFile, hasPhoto: !!photoFile, tourVisited, tourTimeSeconds }}
           cvFile={cvFile}
@@ -411,7 +441,7 @@ export default function App() {
     return (
       <>
         <CursorGlow />
-        <MusicPlayer genre={form.musicGenre} />
+        {musicPlayer}
         <div className="page">
           <button className="page-back-btn" onClick={resetForm} title="Inapoi">&#8592;</button>
           <div className="container success-wrap">
