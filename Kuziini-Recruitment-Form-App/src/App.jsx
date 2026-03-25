@@ -144,24 +144,6 @@ export default function App() {
     setShowLogin(true)
   }
 
-  useEffect(() => {
-    if (window.location.hash === '#admin') setShowLogin(true)
-    function onHash() {
-      if (window.location.hash === '#admin') setShowLogin(true)
-    }
-    window.addEventListener('hashchange', onHash)
-    return () => window.removeEventListener('hashchange', onHash)
-  }, [])
-
-  if (isAdmin) return <AdminDashboard onExit={() => setIsAdmin(false)} />
-
-  const loginModal = showLogin && (
-    <AdminLogin
-      onSuccess={() => { setShowLogin(false); setIsAdmin(true) }}
-      onCancel={() => setShowLogin(false)}
-    />
-  )
-
   const completion = useMemo(() => {
     const visibleFields = [
       'fullName', 'phone', 'email', 'city', 'experienceYears',
@@ -171,6 +153,25 @@ export default function App() {
     const filled = visibleFields.filter((key) => String(form[key]).trim() !== '').length + (form.gdpr ? 1 : 0)
     return Math.round((filled / (visibleFields.length + 1)) * 100)
   }, [form])
+
+  useEffect(() => {
+    if (window.location.hash === '#admin') setShowLogin(true)
+    function onHash() {
+      if (window.location.hash === '#admin') setShowLogin(true)
+    }
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
+
+  // All hooks are above — conditional returns below
+  if (isAdmin) return <AdminDashboard onExit={() => setIsAdmin(false)} />
+
+  const loginModal = showLogin && (
+    <AdminLogin
+      onSuccess={() => { setShowLogin(false); setIsAdmin(true) }}
+      onCancel={() => setShowLogin(false)}
+    />
+  )
 
   function updateField(key, value) {
     setForm((prev) => ({ ...prev, [key]: value }))

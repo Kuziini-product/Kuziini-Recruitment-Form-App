@@ -190,10 +190,9 @@ a:hover {
 /* ── CARD ── */
 
 .card {
-  background: linear-gradient(145deg, rgba(26, 26, 26, 0.9), rgba(17, 17, 17, 0.95));
-  border: 1px solid rgba(201, 168, 76, 0.08);
+  background: #151515;
+  border: 1px solid rgba(201, 168, 76, 0.12);
   border-radius: 2px;
-  backdrop-filter: blur(20px);
   position: relative;
   overflow: hidden;
 }
