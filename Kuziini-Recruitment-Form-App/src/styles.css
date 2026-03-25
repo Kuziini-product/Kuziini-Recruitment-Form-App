@@ -1102,8 +1102,8 @@ textarea {
 
 .admin-page {
   min-height: 100vh;
-  background: var(--black);
-  color: var(--cream);
+  background: #f0f1f3;
+  color: #1a1a1a;
   padding: 32px;
   position: relative;
   z-index: 1;
@@ -1120,22 +1120,23 @@ textarea {
   align-items: center;
   margin-bottom: 32px;
   padding-bottom: 24px;
-  border-bottom: 1px solid rgba(201, 168, 76, 0.12);
+  border-bottom: 1px solid #d1d5db;
 }
 
 .admin-header h1 {
   font-family: var(--font-display);
   font-size: 1.6rem;
-  font-weight: 400;
-  color: var(--white);
+  font-weight: 700;
+  color: #111827;
   letter-spacing: 0.02em;
+  text-align: left;
 }
 
 .admin-subtitle {
-  color: var(--ash);
+  color: #6b7280;
   margin: 6px 0 0;
   font-size: 0.82rem;
-  font-weight: 300;
+  font-weight: 400;
   letter-spacing: 0.05em;
 }
 
@@ -1144,14 +1145,14 @@ textarea {
   display: flex;
   gap: 0;
   margin-bottom: 32px;
-  border-bottom: 1px solid var(--graphite);
+  border-bottom: 1px solid #d1d5db;
 }
 
 .admin-tab {
   padding: 14px 28px;
   border: none;
   background: transparent;
-  color: var(--ash);
+  color: #6b7280;
   cursor: pointer;
   font-family: var(--font-body);
   font-size: 0.78rem;
@@ -1168,17 +1169,18 @@ textarea {
   bottom: -1px;
   left: 0;
   right: 0;
-  height: 1px;
+  height: 2px;
   background: transparent;
   transition: background 0.3s;
 }
 
 .admin-tab:hover {
-  color: var(--cream);
+  color: #111827;
 }
 
 .admin-tab-active {
-  color: var(--gold);
+  color: #111827;
+  font-weight: 600;
 }
 
 .admin-tab-active::after {
@@ -1194,10 +1196,12 @@ textarea {
 }
 
 .admin-stat-card {
-  background: var(--carbon);
-  border: 1px solid rgba(201, 168, 76, 0.06);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
   padding: 28px;
   position: relative;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
 .admin-stat-card::before {
@@ -1206,12 +1210,13 @@ textarea {
   top: 0;
   left: 0;
   right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, var(--gold), transparent);
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  border-radius: 12px 12px 0 0;
 }
 
 .admin-stat-label {
-  color: var(--ash);
+  color: #6b7280;
   font-size: 0.7rem;
   font-weight: 500;
   letter-spacing: 0.15em;
@@ -1223,29 +1228,31 @@ textarea {
   font-family: var(--font-display);
   font-size: 2rem;
   font-weight: 700;
-  color: var(--white);
+  color: #111827;
 }
 
 .admin-stat-sub {
-  color: var(--ash);
+  color: #9ca3af;
   font-size: 0.75rem;
   margin-top: 6px;
-  font-weight: 300;
+  font-weight: 400;
 }
 
 /* Admin card */
 .admin-card {
-  background: var(--carbon);
-  border: 1px solid rgba(201, 168, 76, 0.06);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
   padding: 32px;
   margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
 .admin-card h2 {
   font-family: var(--font-display);
-  color: var(--white);
+  color: #111827;
   font-size: 1.1rem;
-  font-weight: 400;
+  font-weight: 600;
   margin: 0 0 24px;
   letter-spacing: 0.02em;
 }
@@ -1286,8 +1293,9 @@ textarea {
 .class-bar-track {
   flex: 1;
   height: 4px;
-  background: var(--graphite);
+  background: #e5e7eb;
   overflow: hidden;
+  border-radius: 2px;
 }
 
 .class-bar-fill {
@@ -1298,15 +1306,15 @@ textarea {
 .class-bar-count {
   min-width: 60px;
   text-align: right;
-  color: var(--ash);
+  color: #6b7280;
   font-size: 0.82rem;
-  font-weight: 300;
+  font-weight: 400;
 }
 
 .score-range-label {
   min-width: 70px;
   font-size: 0.82rem;
-  color: var(--silver);
+  color: #6b7280;
   font-weight: 400;
 }
 
@@ -1325,14 +1333,15 @@ textarea {
 
 .question-stat-text {
   font-size: 0.82rem;
-  color: var(--mist);
-  font-weight: 300;
+  color: #374151;
+  font-weight: 400;
 }
 
 .question-stat-bar-wrap {
   height: 4px;
-  background: var(--graphite);
+  background: #e5e7eb;
   overflow: hidden;
+  border-radius: 2px;
 }
 
 .question-stat-bar {
@@ -1344,8 +1353,8 @@ textarea {
 .question-stat-val {
   text-align: right;
   font-size: 0.82rem;
-  color: var(--silver);
-  font-weight: 400;
+  color: #6b7280;
+  font-weight: 500;
 }
 
 /* Admin table */
@@ -1358,9 +1367,9 @@ textarea {
 .admin-table th {
   text-align: left;
   padding: 12px 16px;
-  color: var(--ash);
+  color: #6b7280;
   font-weight: 500;
-  border-bottom: 1px solid var(--graphite);
+  border-bottom: 1px solid #e5e7eb;
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -1368,9 +1377,9 @@ textarea {
 
 .admin-table td {
   padding: 14px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-  color: var(--mist);
-  font-weight: 300;
+  border-bottom: 1px solid #f3f4f6;
+  color: #374151;
+  font-weight: 400;
 }
 
 .admin-table tbody tr {
@@ -1378,7 +1387,7 @@ textarea {
 }
 
 .admin-table tbody tr:hover {
-  background: rgba(201, 168, 76, 0.03);
+  background: #f9fafb;
 }
 
 .admin-row-clickable {
@@ -1401,7 +1410,7 @@ textarea {
 
 .score-bar-label {
   font-size: 0.78rem;
-  color: var(--ash);
+  color: #6b7280;
   min-width: 30px;
 }
 
@@ -1411,9 +1420,10 @@ textarea {
   font-size: 0.7rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  background: transparent;
-  color: var(--gold);
-  border: 1px solid var(--steel);
+  background: #f9fafb;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
   cursor: pointer;
   font-family: var(--font-body);
   transition: all 0.3s;
@@ -1421,7 +1431,8 @@ textarea {
 
 .btn-small:hover {
   border-color: var(--gold);
-  background: rgba(201, 168, 76, 0.06);
+  background: #f3f4f6;
+  color: #111827;
 }
 
 /* Best card */
@@ -1451,7 +1462,7 @@ textarea {
   font-family: var(--font-display);
   font-size: 1.6rem;
   font-weight: 900;
-  color: var(--gold);
+  color: #c9a84c;
 }
 
 .best-star {
@@ -1478,12 +1489,12 @@ textarea {
   font-family: var(--font-display);
   font-size: 1.4rem;
   font-weight: 900;
-  color: var(--white);
+  color: #111827;
 }
 
 .best-score-class {
   font-size: 0.7rem;
-  color: var(--ash);
+  color: #6b7280;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -1494,17 +1505,17 @@ textarea {
   gap: 16px;
   margin-bottom: 24px;
   font-size: 0.88rem;
-  color: var(--mist);
+  color: #374151;
 }
 
 .best-details strong {
-  color: var(--cream);
+  color: #111827;
   font-weight: 500;
 }
 
 .recommendation-text {
   font-size: 0.78rem;
-  color: var(--ash);
+  color: #6b7280;
   font-style: italic;
 }
 
@@ -1519,11 +1530,12 @@ textarea {
 .detail-class-badge {
   width: 80px;
   height: 80px;
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: var(--black);
+  color: #fff;
 }
 
 .detail-class-letter {
@@ -1545,9 +1557,10 @@ textarea {
 }
 
 .detail-item {
-  background: var(--black-soft);
+  background: #f9fafb;
   padding: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
 }
 
 .detail-item span {
@@ -1556,15 +1569,15 @@ textarea {
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--ash);
+  color: #9ca3af;
   margin-bottom: 6px;
 }
 
 .detail-item strong,
 .detail-item a {
-  color: var(--cream);
+  color: #111827;
   font-size: 0.92rem;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 .detail-motivation {
@@ -1574,19 +1587,20 @@ textarea {
 .detail-motivation h3,
 .detail-answers h3 {
   font-family: var(--font-display);
-  color: var(--white);
+  color: #111827;
   margin: 0 0 16px;
   font-size: 1rem;
-  font-weight: 400;
+  font-weight: 600;
 }
 
 .detail-motivation p {
-  background: var(--black-soft);
+  background: #f9fafb;
   padding: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  color: var(--mist);
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  color: #374151;
   line-height: 1.7;
-  font-weight: 300;
+  font-weight: 400;
 }
 
 /* ══════════════════════════════════════════
