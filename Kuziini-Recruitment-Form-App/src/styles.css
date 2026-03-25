@@ -558,32 +558,33 @@ a:hover {
   mask-repeat: no-repeat;
   -webkit-mask-position: center;
   mask-position: center;
-  /* Brushed stainless steel / inox satinat */
+  /* Brushed gold satinat — same as golden line accents */
   background:
     /* Horizontal brush lines */
     repeating-linear-gradient(
       90deg,
       transparent 0px,
-      rgba(255, 255, 255, 0.03) 1px,
+      rgba(255, 255, 255, 0.04) 1px,
       transparent 2px,
-      rgba(0, 0, 0, 0.02) 3px,
+      rgba(0, 0, 0, 0.03) 3px,
       transparent 4px
     ),
-    /* Base metallic gradient */
+    /* Base gold metallic gradient */
     linear-gradient(
       160deg,
-      #7a7a7a 0%,
-      #a8a8a8 12%,
-      #c4c4c4 22%,
-      #b0b0b0 30%,
-      #9a9a9a 38%,
-      #bdbdbd 48%,
-      #d6d6d6 52%,
-      #b8b8b8 60%,
-      #a0a0a0 70%,
-      #c0c0c0 80%,
-      #aaaaaa 90%,
-      #8e8e8e 100%
+      #8a6d2b 0%,
+      #b8922f 10%,
+      #d4b44c 20%,
+      #c9a84c 28%,
+      #a68a2e 36%,
+      #d4b85a 46%,
+      #e8d07a 52%,
+      #dfc77a 58%,
+      #c9a84c 66%,
+      #b08c30 74%,
+      #d4b44c 82%,
+      #a68a2e 92%,
+      #8a6d2b 100%
     );
   filter: contrast(1.05) brightness(1.05);
 }
