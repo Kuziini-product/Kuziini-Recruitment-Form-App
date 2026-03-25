@@ -619,7 +619,7 @@ a:hover {
     transparent 100%
   );
   transform: skewX(-18deg);
-  animation: logoFlash 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: logoFlash 12s cubic-bezier(0.25, 0, 0.15, 1) infinite;
 }
 
 .logo-flash::after {
@@ -638,7 +638,7 @@ a:hover {
     transparent 100%
   );
   transform: skewX(-18deg);
-  animation: logoFlash2 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: logoFlash2 12s cubic-bezier(0.25, 0, 0.15, 1) infinite;
 }
 
 @keyframes logoFlash {
