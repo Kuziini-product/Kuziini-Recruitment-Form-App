@@ -291,6 +291,75 @@ a:hover {
   font-weight: 700;
 }
 
+/* ══════════════════════════════════════════
+   WELCOME PAGE (fullscreen landing)
+   ══════════════════════════════════════════ */
+
+.welcome-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  padding: 40px 24px;
+}
+
+.welcome-content {
+  text-align: center;
+  max-width: 700px;
+  width: 100%;
+}
+
+.welcome-content .logo-wrap {
+  width: 80%;
+  margin: 0 auto 32px;
+}
+
+.welcome-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 900;
+  color: var(--white);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-align: center;
+  margin: 0;
+}
+
+.welcome-sub {
+  font-size: 0.82rem;
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ash);
+  margin: 0 0 20px;
+}
+
+.genre-selector-welcome {
+  justify-content: center;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.welcome-start-btn {
+  margin-top: 36px;
+  padding: 20px 52px !important;
+  font-size: 0.88rem !important;
+}
+
+.welcome-scroll-hint {
+  margin-top: 48px;
+  color: var(--ash);
+  font-size: 1.4rem;
+  animation: scrollBounce 2s ease-in-out infinite;
+}
+
+@keyframes scrollBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(8px); opacity: 0.8; }
+}
+
 /* ── Music Genre Selector ── */
 
 .genre-selector {

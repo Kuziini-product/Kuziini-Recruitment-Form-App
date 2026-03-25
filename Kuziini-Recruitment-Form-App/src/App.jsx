@@ -172,7 +172,7 @@ export default function App() {
   const [showLogin, setShowLogin] = useState(false)
   const [form, setForm] = useState(initialForm)
   const [errors, setErrors] = useState({})
-  const [step, setStep] = useState('form') // form | cvPrompt | interview | success
+  const [step, setStep] = useState('welcome') // welcome | form | cvPrompt | interview | success
   const [result, setResult] = useState(null)
   const [photoFile, setPhotoFile] = useState(null)
   const [cvFile, setCvFile] = useState(null)
@@ -248,8 +248,55 @@ export default function App() {
     setResult(null)
     setPhotoFile(null)
     setCvFile(null)
-    setStep('form')
+    setStep('welcome')
     startTimeRef.current = Date.now()
+  }
+
+  // ── STEP: WELCOME (landing page) ──
+  if (step === 'welcome') {
+    return (
+      <>
+        <CursorGlow />
+        <MusicPlayer genre={form.musicGenre} />
+        {loginModal}
+        <div className="welcome-page">
+          <div className="welcome-content">
+            <div className="logo-wrap">
+              <img src="/logo-kuziini.png" alt="Kuziini" className="logo-img" />
+              <div className="logo-flash" />
+            </div>
+            <h1 className="welcome-title">Aplica pentru rolul de Proiectant Mobilier</h1>
+            <div className="gold-line" style={{ margin: '24px auto 40px' }} />
+
+            <p className="welcome-sub">Alege atmosfera potrivita</p>
+            <div className="genre-selector genre-selector-welcome">
+              {getGenres().map((g) => (
+                <button
+                  key={g.id}
+                  type="button"
+                  className={`genre-btn ${form.musicGenre === g.id ? 'genre-active' : ''}`}
+                  onClick={() => updateField('musicGenre', g.id)}
+                >
+                  <span className="genre-icon">{g.icon}</span>
+                  <span className="genre-label">{g.label}</span>
+                </button>
+              ))}
+            </div>
+
+            <button
+              className="btn btn-primary welcome-start-btn"
+              onClick={() => { setStep('form'); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+            >
+              Incepe aplicarea
+            </button>
+
+            <div className="welcome-scroll-hint">
+              <span>&#8595;</span>
+            </div>
+          </div>
+        </div>
+      </>
+    )
   }
 
   // ── STEP: CV PROMPT ──
@@ -367,21 +414,9 @@ export default function App() {
         <div className="container layout">
           <section className="card main-card">
             <Reveal>
-              <div className="logo-wrap">
-                <img src="/logo-kuziini.png" alt="Kuziini" className="logo-img" />
-                <div className="logo-flash" />
-              </div>
-            </Reveal>
-
-            <Reveal>
-              <h1>Aplica pentru rolul de Proiectant Mobilier</h1>
-            </Reveal>
-
-            <Reveal>
-              <p className="lead">
+              <p className="lead" style={{ marginTop: 0 }}>
                 Cautam un profesionist cu experienta reala in proiectare mobilier si lucru in Corpus Solutions 3D.
               </p>
-              <div className="gold-line" />
             </Reveal>
 
             <Reveal>
@@ -504,23 +539,6 @@ export default function App() {
                   </label>
                   {errors.gdpr ? <div className="error">{errors.gdpr}</div> : null}
                 </div>
-
-                {/* ── Music Genre Selector (last before submit) ── */}
-                <Field label="Ce gen de muzica te inspira?">
-                  <div className="genre-selector">
-                    {getGenres().map((g) => (
-                      <button
-                        key={g.id}
-                        type="button"
-                        className={`genre-btn ${form.musicGenre === g.id ? 'genre-active' : ''}`}
-                        onClick={() => updateField('musicGenre', g.id)}
-                      >
-                        <span className="genre-icon">{g.icon}</span>
-                        <span className="genre-label">{g.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </Field>
 
                 <div className="form-footer">
                   <span>Completare: {completion}%</span>
