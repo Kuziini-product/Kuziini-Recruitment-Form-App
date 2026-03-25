@@ -36,6 +36,19 @@ export const technicalQuestions = [
     ],
   },
   {
+    id: 'hobby',
+    question: 'Care este hobby-ul tau preferat?',
+    type: 'hobby',
+    options: [
+      { text: 'Sport', icon: '⚽', points: 2 },
+      { text: 'Studiu', icon: '📚', points: 2 },
+      { text: 'Calatorit', icon: '✈️', points: 2 },
+      { text: 'Filme', icon: '🎬', points: 2 },
+      { text: 'Nu am hobby', icon: '🤷', points: 0 },
+      { text: 'Personalizat', icon: '✏️', points: 2, custom: true },
+    ],
+  },
+  {
     id: 4,
     question: 'Cum abordezi o situatie in care clientul cere o configuratie care nu este fezabila tehnic?',
     options: [
@@ -108,10 +121,10 @@ export const kuziiniQuestions = [
   },
 ]
 
-export const TECH_MAX_SCORE = technicalQuestions.reduce(
-  (sum, q) => sum + Math.max(...q.options.map((o) => o.points)),
-  0
-)
+export const TECH_MAX_SCORE = technicalQuestions.reduce((sum, q) => {
+  if (q.type === 'hobby') return sum + Math.max(...q.options.map((o) => o.points))
+  return sum + Math.max(...q.options.map((o) => o.points))
+}, 0)
 
 export const KUZIINI_MAX_SCORE = kuziiniQuestions.reduce((sum, q) => {
   if (q.type === 'hearts') return sum + q.maxHearts * q.pointsPerHeart

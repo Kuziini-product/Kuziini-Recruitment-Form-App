@@ -101,11 +101,12 @@ function HeartsRating({ max, value, onChange }) {
   )
 }
 
-export default function MiniInterview({ formData, startTime, onComplete, onBack }) {
+export default function MiniInterview({ formData, cvFile, startTime, onComplete, onBack }) {
   const [currentQ, setCurrentQ] = useState(0)
   const [answers, setAnswers] = useState([])
   const [selected, setSelected] = useState(null)
   const [heartsValue, setHeartsValue] = useState(0)
+  const [customHobby, setCustomHobby] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -118,10 +119,11 @@ export default function MiniInterview({ formData, startTime, onComplete, onBack 
   const total = allQuestions.length
   const progress = Math.round((currentQ / total) * 100)
   const isHeartsQ = q?.type === 'hearts'
+  const isHobbyQ = q?.type === 'hobby'
 
   const techCount = technicalQuestions.length
   const sectionLabel =
-    currentQ < techCount ? 'Evaluare Tehnica' : 'Despre Kuziini'
+    isHobbyQ ? 'Personalitate' : currentQ < techCount ? 'Evaluare Tehnica' : 'Despre Kuziini'
 
   function handleSelect(optIndex) {
     setSelected(optIndex)
@@ -129,6 +131,12 @@ export default function MiniInterview({ formData, startTime, onComplete, onBack 
 
   function canProceed() {
     if (isHeartsQ) return heartsValue > 0
+    if (isHobbyQ) {
+      if (selected === null) return false
+      const opt = q.options[selected]
+      if (opt.custom) return customHobby.trim().length > 0
+      return true
+    }
     return selected !== null
   }
 
@@ -140,6 +148,16 @@ export default function MiniInterview({ formData, startTime, onComplete, onBack 
         points: heartsValue * q.pointsPerHeart,
         maxPoints: q.maxHearts * q.pointsPerHeart,
         type: 'hearts',
+      }
+    }
+    if (isHobbyQ) {
+      const opt = q.options[selected]
+      return {
+        question: q.question,
+        selectedAnswer: opt.custom ? `Personalizat: ${customHobby}` : opt.text,
+        points: opt.points,
+        maxPoints: Math.max(...q.options.map((o) => o.points)),
+        type: 'hobby',
       }
     }
     const option = q.options[selected]
@@ -159,6 +177,7 @@ export default function MiniInterview({ formData, startTime, onComplete, onBack 
     setAnswers(newAnswers)
     setSelected(null)
     setHeartsValue(0)
+    setCustomHobby('')
 
     if (currentQ < total - 1) {
       setCurrentQ(currentQ + 1)
@@ -348,7 +367,31 @@ export default function MiniInterview({ formData, startTime, onComplete, onBack 
               <h2 className="question-text">{q.question}</h2>
             </div>
 
-            {isHeartsQ ? (
+            {isHobbyQ ? (
+              <div className="hobby-grid">
+                {q.options.map((opt, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className={`hobby-btn ${selected === i ? 'hobby-active' : ''}`}
+                    onClick={() => { setSelected(i); setCustomHobby('') }}
+                  >
+                    <span className="hobby-icon">{opt.icon}</span>
+                    <span className="hobby-label">{opt.text}</span>
+                  </button>
+                ))}
+                {selected !== null && q.options[selected]?.custom && (
+                  <input
+                    className="hobby-custom-input"
+                    type="text"
+                    value={customHobby}
+                    onChange={(e) => setCustomHobby(e.target.value)}
+                    placeholder="Scrie hobby-ul tau..."
+                    autoFocus
+                  />
+                )}
+              </div>
+            ) : isHeartsQ ? (
               <HeartsRating
                 max={q.maxHearts}
                 value={heartsValue}
