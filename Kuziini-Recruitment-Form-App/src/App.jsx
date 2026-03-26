@@ -686,7 +686,7 @@ export default function App() {
                 </Field>
 
                 <Field label={t('labelSalary')} required error={errors.expectedSalary}>
-                  <input value={form.expectedSalary} onChange={(e) => updateField('expectedSalary', e.target.value)} placeholder="4800 RON" />
+                  <input value={form.expectedSalary} onChange={(e) => updateField('expectedSalary', e.target.value)} placeholder="0" />
                 </Field>
 
                 <Field label={t('labelMotivation')} required error={errors.motivation}>

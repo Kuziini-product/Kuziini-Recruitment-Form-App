@@ -142,7 +142,7 @@ export const questionsI18n = {
   q1: { ro: 'Care este nivelul tau de cunoastere in Corpus Solutions 3D?', en: 'What is your level of knowledge in Corpus Solutions 3D?' },
   q1o1: { ro: 'Am lucrat extensiv (3+ ani), inclusiv configurari complexe si biblioteci custom', en: 'I have worked extensively (3+ years), including complex configurations and custom libraries' },
   q1o2: { ro: 'Am experienta medie (1-3 ani), proiecte de bucatarii si mobilier standard', en: 'I have medium experience (1-3 years), kitchen and standard furniture projects' },
-  q1o3: { ro: 'Am cunostinte de baza, am folosit-o ocazional', en: 'I have basic knowledge, used it occasionally' },
+  q1o3: { ro: 'L-am folosit ocazional', en: 'I used it occasionally' },
   q1o4: { ro: 'Nu am lucrat in Corpus Solutions, dar am experienta in alte programe CAD', en: 'I haven\'t worked in Corpus Solutions, but I have experience with other CAD software' },
 
   q2: { ro: 'Cum generezi de obicei listele de materiale si accesorii pentru productie?', en: 'How do you usually generate material and accessory lists for production?' },

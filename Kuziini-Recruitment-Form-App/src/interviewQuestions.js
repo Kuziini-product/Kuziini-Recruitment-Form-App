@@ -11,7 +11,7 @@ export const technicalQuestions = [
     options: [
       { text: 'Am lucrat extensiv (3+ ani), inclusiv configurari complexe si biblioteci custom', points: 5 },
       { text: 'Am experienta medie (1-3 ani), proiecte de bucatarii si mobilier standard', points: 3 },
-      { text: 'Am cunostinte de baza, am folosit-o ocazional', points: 1 },
+      { text: 'L-am folosit ocazional', points: 1 },
       { text: 'Nu am lucrat in Corpus Solutions, dar am experienta in alte programe CAD', points: 0 },
     ],
   },
