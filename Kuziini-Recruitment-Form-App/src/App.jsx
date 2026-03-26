@@ -567,6 +567,9 @@ export default function App() {
               <p className="lead" style={{ marginTop: 0 }}>
                 Cautam un profesionist cu experienta reala in proiectare mobilier si lucru in Corpus Solutions 3D.
               </p>
+              <div style={{ display: 'flex', justifyContent: 'center', margin: '16px 0 8px' }}>
+                <img src="/corpus-logo.png" alt="Corpus Solutions 3D" style={{ maxWidth: '180px', height: 'auto', opacity: 0.85 }} />
+              </div>
             </Reveal>
 
             <Reveal>
