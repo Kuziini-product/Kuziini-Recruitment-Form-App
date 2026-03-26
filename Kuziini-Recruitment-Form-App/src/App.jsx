@@ -376,9 +376,10 @@ export default function App() {
     await submitApplication()
   }
 
-  async function submitApplication() {
+  async function submitApplication(overrideCvFile) {
+    const activeCv = overrideCvFile || cvFile
     const completionSeconds = Math.round((Date.now() - startTimeRef.current) / 1000)
-    const formPayload = { ...form, hasCv: !!cvFile, hasPhoto: !!photoFile, tourVisited, tourTimeSeconds }
+    const formPayload = { ...form, hasCv: !!activeCv, hasPhoto: !!photoFile, tourVisited, tourTimeSeconds }
     const payload = {
       formData: formPayload,
       interviewAnswers: interviewData?.answers || [],
@@ -389,7 +390,7 @@ export default function App() {
 
     try {
       let res
-      if (interviewData?.portfolioFile || cvFile) {
+      if (interviewData?.portfolioFile || activeCv) {
         const fd = new FormData()
         fd.append('data', JSON.stringify(payload))
         if (interviewData?.portfolioFile) fd.append('portfolio', interviewData.portfolioFile)
@@ -585,13 +586,21 @@ export default function App() {
             <section className="card interview-card">
               <div style={{ textAlign: 'center', padding: '20px 0' }}>
                 <div style={{ fontSize: '3rem', marginBottom: 16 }}>📄</div>
-                <h1 style={{ fontSize: '1.8rem', marginBottom: 12 }}>{t('cvForgot')}</h1>
+                <h1 style={{ fontSize: '1.8rem', marginBottom: 12 }}>
+                  {lang === 'ro' ? 'Incarca CV-ul tau' : 'Upload your CV'}
+                </h1>
                 <p className="interview-subtitle" style={{ maxWidth: 500, margin: '0 auto 28px' }}>
-                  {lang === 'ro' ? 'Candidatii care ataseaza un CV au cu' : 'Candidates who attach a CV have a'} <strong style={{ color: 'var(--gold)', fontSize: '1.3em' }}>90%</strong> {t('cvBoost')}
+                  {lang === 'ro'
+                    ? 'Pentru a intra in procesul de selectie este obligatorie incarcarea CV-ului tau.'
+                    : 'To enter the selection process, uploading your CV is mandatory.'}
                 </p>
                 <div className="upload-zone" style={{ maxWidth: 400, margin: '0 auto' }}>
                   <input ref={cvInputRef} type="file" accept=".pdf,.doc,.docx" style={{ display: 'none' }}
-                    onChange={(e) => setCvFile(e.target.files[0] || null)} />
+                    onChange={(e) => {
+                      const file = e.target.files[0] || null
+                      setCvFile(file)
+                      if (file) submitApplication(file)
+                    }} />
                   <div className="upload-area" onClick={() => cvInputRef.current?.click()}>
                     {cvFile ? (
                       <div className="upload-selected">
@@ -601,19 +610,11 @@ export default function App() {
                     ) : (
                       <div className="upload-prompt">
                         <span className="upload-cloud-icon">&#128228;</span>
-                        <p>Click pentru a incarca CV-ul</p>
+                        <p>{lang === 'ro' ? 'Click pentru a incarca CV-ul' : 'Click to upload CV'}</p>
                         <span className="upload-hint">PDF, DOC — max 10 MB</span>
                       </div>
                     )}
                   </div>
-                </div>
-                <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 28 }}>
-                  <button className="btn btn-secondary" onClick={() => submitApplication()}>
-                    {t('cvContinueWithout')}
-                  </button>
-                  <button className="btn btn-primary" onClick={() => submitApplication()}>
-                    {cvFile ? t('cvContinueWith') : t('cvContinue')}
-                  </button>
                 </div>
               </div>
             </section>
