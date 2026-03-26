@@ -561,6 +561,9 @@ export default function App() {
       {loginModal}
       <div className="page">
         <button className="page-back-btn" onClick={() => { setStep('welcome'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} title="Inapoi">&#8592;</button>
+        {isAdminSession && (
+          <button className="page-next-btn" onClick={() => { setStep('interview'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} title="Sari la interviu (admin)">&#8594;</button>
+        )}
         <div className="container layout">
           <section className="card main-card">
             <Reveal>

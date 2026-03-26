@@ -165,6 +165,31 @@ a:hover {
   background: rgba(201, 168, 76, 0.08);
 }
 
+.page-next-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(201, 168, 76, 0.15);
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  color: var(--gold);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  backdrop-filter: blur(8px);
+}
+.page-next-btn:hover {
+  background: var(--gold);
+  color: #0a0a0a;
+  transform: scale(1.1);
+}
+
 .container {
   max-width: 1320px;
   margin: 0 auto;
