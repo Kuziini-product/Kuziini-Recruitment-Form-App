@@ -103,8 +103,8 @@ export function analyzeApplicant(formData, answers) {
   // Tour visit
   if (formData.tourVisited) {
     const tourTime = formData.tourTimeSeconds || 0
-    if (tourTime > 120) { traits.push(`A explorat turul virtual ${Math.floor(tourTime/60)}m — interes real pentru spatiul Kuziini`); profile.score += 3 }
-    else if (tourTime > 30) { traits.push('A vizitat turul virtual — curiozitate activa'); profile.score += 1 }
+    if (tourTime > 120) { traits.push(`A explorat turul virtual ${Math.floor(tourTime/60)}m — interes real pentru spatiul Kuziini`) }
+    else if (tourTime > 30) { traits.push('A vizitat turul virtual — curiozitate activa') }
     else { traits.push('A deschis turul virtual dar a stat putin — curiozitate superficiala') }
   }
 
