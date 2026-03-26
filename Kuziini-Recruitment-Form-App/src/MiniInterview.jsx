@@ -119,7 +119,7 @@ function HeartsRating({ max, value, onChange }) {
   )
 }
 
-export default function MiniInterview({ formData, cvFile, startTime, onComplete, onBack, lang = 'ro', isAdmin = false }) {
+export default function MiniInterview({ formData, cvFile, startTime, onComplete, onBack, lang = 'ro', isAdmin = false, deferSubmit = false }) {
   const qt = (key) => questionsI18n[key] ? (questionsI18n[key][lang] || questionsI18n[key].ro) : key
   const [currentQ, setCurrentQ] = useState(0)
   const [answers, setAnswers] = useState([])
@@ -208,6 +208,14 @@ export default function MiniInterview({ formData, cvFile, startTime, onComplete,
   function checkScoreAndProceed(finalAnswers) {
     const totalScore = finalAnswers.reduce((s, a) => s + a.points, 0)
     const pct = (totalScore / TOTAL_MAX_SCORE) * 100
+    if (deferSubmit) {
+      if (pct >= 70) {
+        setShowUpload(true)
+      } else {
+        onComplete({ score: totalScore, maxScore: TOTAL_MAX_SCORE, answers: finalAnswers, portfolioFile: null })
+      }
+      return
+    }
     if (pct >= 70) {
       setShowUpload(true)
     } else {
@@ -216,22 +224,34 @@ export default function MiniInterview({ formData, cvFile, startTime, onComplete,
   }
 
   function handleSkipUpload() {
+    if (deferSubmit) {
+      const totalScore = answers.reduce((s, a) => s + a.points, 0)
+      onComplete({ score: totalScore, maxScore: TOTAL_MAX_SCORE, answers, portfolioFile: null })
+      return
+    }
     submitAll(answers, null)
   }
 
   // Save partial + send abandon email when user quits
   async function savePartialAndQuit() {
-    try {
-      await fetch('/api/partial', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ formData }),
-      })
-    } catch {}
+    if (!deferSubmit) {
+      try {
+        await fetch('/api/partial', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ formData }),
+        })
+      } catch {}
+    }
     onBack()
   }
 
   function handleSubmitWithUpload() {
+    if (deferSubmit) {
+      const totalScore = answers.reduce((s, a) => s + a.points, 0)
+      onComplete({ score: totalScore, maxScore: TOTAL_MAX_SCORE, answers, portfolioFile })
+      return
+    }
     submitAll(answers, portfolioFile)
   }
 

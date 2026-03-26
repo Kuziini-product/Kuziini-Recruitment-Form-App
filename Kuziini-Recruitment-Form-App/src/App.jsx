@@ -239,8 +239,9 @@ export default function App() {
   }
   const [form, setForm] = useState(initialForm)
   const [errors, setErrors] = useState({})
-  const [step, setStep] = useState('welcome') // welcome | form | cvPrompt | interview | success
+  const [step, setStep] = useState('welcome') // welcome | interview | form | cvPrompt | success
   const [result, setResult] = useState(null)
+  const [interviewData, setInterviewData] = useState(null) // stored answers from interview step
   const [photoFile, setPhotoFile] = useState(null)
   const [cvFile, setCvFile] = useState(null)
   const [tourVisited, setTourVisited] = useState(false)
@@ -275,10 +276,10 @@ export default function App() {
     return Math.round((filled / (fields.length + 3)) * 100)
   }, [form])
 
-  // Save partial when user leaves during interview (browser back, close tab, refresh)
+  // Save partial when user leaves during form (browser back, close tab, refresh)
   useEffect(() => {
     function saveOnLeave() {
-      if ((step === 'interview' || step === 'cvPrompt') && form.email) {
+      if ((step === 'form' || step === 'cvPrompt') && form.email) {
         navigator.sendBeacon('/api/partial', new Blob([JSON.stringify({ formData: form })], { type: 'application/json' }))
       }
     }
@@ -288,14 +289,14 @@ export default function App() {
       window.history.pushState(null, '', window.location.href)
       function onPopState() {
         if (step === 'interview') {
+          setStep('welcome')
+          window.history.pushState(null, '', window.location.href)
+        } else if (step === 'form') {
           saveOnLeave()
-          setStep('form')
+          setStep('interview')
           window.history.pushState(null, '', window.location.href)
         } else if (step === 'cvPrompt') {
           setStep('form')
-          window.history.pushState(null, '', window.location.href)
-        } else if (step === 'form') {
-          setStep('welcome')
           window.history.pushState(null, '', window.location.href)
         }
       }
@@ -352,7 +353,7 @@ export default function App() {
 
   const isAdminSession = localStorage.getItem('kuziini_admin') === 'true'
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
     // Admin can skip validation
     if (!isAdminSession && !validate()) {
@@ -365,20 +366,63 @@ export default function App() {
     // If no CV attached, show CV prompt (skip for admin)
     if (!isAdminSession && !cvFile && !form.portfolio.trim()) {
       setStep('cvPrompt')
-    } else {
-      setStep('interview')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    await submitApplication()
+  }
+
+  async function submitApplication() {
+    const completionSeconds = Math.round((Date.now() - startTimeRef.current) / 1000)
+    const formPayload = { ...form, hasCv: !!cvFile, hasPhoto: !!photoFile, tourVisited, tourTimeSeconds }
+    const payload = {
+      formData: formPayload,
+      interviewAnswers: interviewData?.answers || [],
+      interviewScore: interviewData?.score || 0,
+      maxScore: interviewData?.maxScore || 0,
+      completionTimeSeconds: completionSeconds,
+    }
+
+    try {
+      let res
+      if (interviewData?.portfolioFile || cvFile) {
+        const fd = new FormData()
+        fd.append('data', JSON.stringify(payload))
+        if (interviewData?.portfolioFile) fd.append('portfolio', interviewData.portfolioFile)
+        res = await fetch('/api/apply', { method: 'POST', body: fd })
+      } else {
+        res = await fetch('/api/apply', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+      }
+
+      const data = await res.json()
+      if (!data.success) throw new Error(data.error || 'Server error')
+
+      setResult({
+        score: interviewData?.score || 0,
+        maxScore: interviewData?.maxScore || 0,
+        classification: data.classification,
+        classificationLabel: data.classificationLabel,
+        answers: interviewData?.answers || [],
+      })
+      setStep('success')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } catch (err) {
+      alert(`Eroare la trimitere: ${err.message}`)
+    }
   }
 
   function handleInterviewComplete(interviewResult) {
-    setResult(interviewResult)
-    setStep('success')
+    setInterviewData(interviewResult)
+    setStep('form')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   function handleInterviewBack() {
-    setStep('form')
+    setStep('welcome')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -386,6 +430,7 @@ export default function App() {
     setForm(initialForm)
     setErrors({})
     setResult(null)
+    setInterviewData(null)
     setPhotoFile(null)
     setCvFile(null)
     setStep('welcome')
@@ -430,7 +475,7 @@ export default function App() {
 
               <button
                 className="btn btn-primary welcome-start-btn"
-                onClick={() => { setStep('form'); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                onClick={() => { setStep('interview'); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
               >
                 {t('welcomeStart')}
               </button>
@@ -460,9 +505,6 @@ export default function App() {
         <LangToggle />
         <div className="page">
           <button className="page-back-btn" onClick={() => { setStep('form'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} title="Inapoi">&#8592;</button>
-          {isAdminSession && (
-            <button className="page-next-btn" onClick={() => { setStep('interview'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} title="Sari la interviu (admin)">&#8594;</button>
-          )}
           <div className="container success-wrap">
             <section className="card interview-card">
               <div style={{ textAlign: 'center', padding: '20px 0' }}>
@@ -490,10 +532,10 @@ export default function App() {
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 28 }}>
-                  <button className="btn btn-secondary" onClick={() => { setStep('interview'); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>
+                  <button className="btn btn-secondary" onClick={() => submitApplication()}>
                     {t('cvContinueWithout')}
                   </button>
-                  <button className="btn btn-primary" onClick={() => { setStep('interview'); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>
+                  <button className="btn btn-primary" onClick={() => submitApplication()}>
                     {cvFile ? t('cvContinueWith') : t('cvContinue')}
                   </button>
                 </div>
@@ -513,13 +555,14 @@ export default function App() {
         {musicPlayer}
         <LangToggle />
         <MiniInterview
-          formData={{ ...form, hasCv: !!cvFile, hasPhoto: !!photoFile, tourVisited, tourTimeSeconds }}
-          cvFile={cvFile}
+          formData={form}
+          cvFile={null}
           startTime={startTimeRef.current}
           onComplete={handleInterviewComplete}
           onBack={handleInterviewBack}
           lang={lang}
           isAdmin={isAdminSession}
+          deferSubmit
         />
       </>
     )
@@ -570,10 +613,7 @@ export default function App() {
       {loginModal}
       <LangToggle />
       <div className="page">
-        <button className="page-back-btn" onClick={() => { setStep('welcome'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} title="Inapoi">&#8592;</button>
-        {isAdminSession && (
-          <button className="page-next-btn" onClick={() => { setStep('interview'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} title="Sari la interviu (admin)">&#8594;</button>
-        )}
+        <button className="page-back-btn" onClick={() => { setStep('interview'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} title="Inapoi">&#8592;</button>
         <div className="container layout">
           <section className="card main-card">
             <Reveal>
