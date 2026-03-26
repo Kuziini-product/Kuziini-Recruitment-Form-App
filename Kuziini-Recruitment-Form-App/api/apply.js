@@ -182,7 +182,7 @@ function buildThankYouEmail(name) {
     </div>
     <div style="padding:32px;background:#fff;border:1px solid #e5e7eb;">
       <p style="font-size:16px;color:#374151;line-height:1.7;margin:0 0 16px;">
-        Echipa <strong style="color:#c9a84c;">Vali Kuziini</strong> iti multumeste ca ai aplicat pentru pozitia de
+        Echipa <strong style="color:#c9a84c;">Kuziini</strong> iti multumeste ca ai aplicat pentru pozitia de
         <strong>Proiectant Mobilier — Corpus Solutions 3D</strong>.
       </p>
       <p style="font-size:16px;color:#374151;line-height:1.7;margin:0 0 16px;">
