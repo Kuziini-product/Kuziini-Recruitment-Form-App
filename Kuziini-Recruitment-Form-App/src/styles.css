@@ -2742,6 +2742,13 @@ body.admin-active::after {
   border-color: #dc2626 !important;
 }
 
+.partial-delete {
+  padding: 6px 10px !important;
+  font-size: 0.9rem !important;
+  min-width: 36px;
+  flex-shrink: 0;
+}
+
 /* ── Partial applicants card ── */
 
 .partial-card {

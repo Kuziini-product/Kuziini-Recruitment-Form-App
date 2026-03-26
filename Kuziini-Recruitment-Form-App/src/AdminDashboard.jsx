@@ -506,7 +506,7 @@ export default function AdminDashboard({ onExit, onHome }) {
                       <div className="applicant-name-col">
                         <strong>{a.full_name}</strong>
                         <span className="applicant-sub">
-                          <a href={`mailto:${a.email}`} onClick={(e) => e.stopPropagation()}>{a.email}</a>
+                          <a href={`mailto:${a.email}`} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>{a.email}</a>
                           {' | '}
                           <a href={`https://wa.me/${(a.phone || '').replace(/\D/g, '').replace(/^0/, '40')}`} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>{a.phone}</a>
                         </span>
@@ -652,7 +652,7 @@ export default function AdminDashboard({ onExit, onHome }) {
                         <div className="applicant-name-col">
                           <strong>{a.full_name}</strong>
                           <span className="applicant-sub">
-                            <a href={`mailto:${a.email}`} onClick={(e) => e.stopPropagation()}>{a.email}</a>
+                            <a href={`mailto:${a.email}`} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>{a.email}</a>
                             {' | '}
                             <a href={`https://wa.me/${(a.phone || '').replace(/\D/g, '').replace(/^0/, '40')}`} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>{a.phone}</a>
                           </span>
@@ -670,6 +670,7 @@ export default function AdminDashboard({ onExit, onHome }) {
                           <span className="applicant-stat-val">{new Date(a.created_at).toLocaleDateString('ro-RO')}</span>
                         </div>
                       </div>
+                      <button className="btn btn-small btn-delete partial-delete" onClick={(e) => { e.stopPropagation(); deleteApplicant(a.id, a.full_name) }}>🗑️</button>
                       <span className="applicant-expand">{expandedId === a.id ? '▲' : '▼'}</span>
                     </div>
                     {expandedId === a.id && expandedData && (
