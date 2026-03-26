@@ -190,6 +190,43 @@ a:hover {
   transform: scale(1.1);
 }
 
+/* ── Language toggle ── */
+.lang-toggle {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 200;
+  width: 36px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(26, 26, 26, 0.6);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  padding: 3px;
+  backdrop-filter: blur(8px);
+}
+.lang-toggle:hover {
+  border-color: var(--gold);
+  background: rgba(201, 168, 76, 0.12);
+  transform: scale(1.08);
+}
+.lang-toggle svg {
+  display: block;
+  border-radius: 2px;
+}
+.admin-page .lang-toggle {
+  background: rgba(255,255,255,0.8);
+  border-color: #d1d5db;
+}
+.admin-page .lang-toggle:hover {
+  border-color: var(--gold);
+  background: rgba(201, 168, 76, 0.12);
+}
+
 .container {
   max-width: 1320px;
   margin: 0 auto;

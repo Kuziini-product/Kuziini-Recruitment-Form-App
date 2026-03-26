@@ -4,6 +4,7 @@ import {
   kuziiniQuestions,
   TOTAL_MAX_SCORE,
 } from './interviewQuestions'
+import { questionsI18n } from './i18n'
 
 // ── Shuffle options per question (seeded by question id for consistency) ──
 function shuffleWithSeed(arr, seed) {
@@ -17,13 +18,30 @@ function shuffleWithSeed(arr, seed) {
   return shuffled
 }
 
-// Shuffle all choice-type questions' options
+// Shuffle all choice-type questions' options, preserving original index for i18n
 const allQuestions = [...technicalQuestions, ...kuziiniQuestions].map((q) => {
   if (q.options) {
-    return { ...q, options: shuffleWithSeed(q.options, q.id) }
+    const tagged = q.options.map((o, idx) => ({ ...o, _oi: idx }))
+    return { ...q, options: shuffleWithSeed(tagged, q.id) }
   }
   return q
 })
+
+// Map question IDs to i18n keys
+const qIdToKey = { 1: 'q1', 2: 'q2', 3: 'q3', hobby: 'qHobby', 4: 'q4', 5: 'q5', 6: 'q6', k1: 'k1', k2: 'k2', k3: 'k3', k4: 'k4' }
+// Map option texts (RO) to i18n keys for each question
+const optionKeys = {
+  1: ['q1o1', 'q1o2', 'q1o3', 'q1o4'],
+  2: ['q2o1', 'q2o2', 'q2o3', 'q2o4'],
+  3: ['q3o1', 'q3o2', 'q3o3', 'q3o4'],
+  4: ['q4o1', 'q4o2', 'q4o3', 'q4o4'],
+  5: ['q5o1', 'q5o2', 'q5o3', 'q5o4'],
+  6: ['q6o1', 'q6o2', 'q6o3', 'q6o4'],
+  k1: ['k1o1', 'k1o2', 'k1o3', 'k1o4'],
+  k3: ['k3o1', 'k3o2', 'k3o3', 'k3o4'],
+}
+// Hobby option i18n keys
+const hobbyKeys = ['hobbySport', 'hobbyStudy', 'hobbyTravel', 'hobbyMovies', 'hobbyNone', 'hobbyCustom']
 
 // ── Falling hearts particle system ──
 function FallingHearts({ count }) {
@@ -101,7 +119,8 @@ function HeartsRating({ max, value, onChange }) {
   )
 }
 
-export default function MiniInterview({ formData, cvFile, startTime, onComplete, onBack }) {
+export default function MiniInterview({ formData, cvFile, startTime, onComplete, onBack, lang = 'ro' }) {
+  const qt = (key) => questionsI18n[key] ? (questionsI18n[key][lang] || questionsI18n[key].ro) : key
   const [currentQ, setCurrentQ] = useState(0)
   const [answers, setAnswers] = useState([])
   const [selected, setSelected] = useState(null)
@@ -123,7 +142,7 @@ export default function MiniInterview({ formData, cvFile, startTime, onComplete,
 
   const techCount = technicalQuestions.length
   const sectionLabel =
-    isHobbyQ ? 'Personalitate' : currentQ < techCount ? 'Evaluare Tehnica' : 'Despre Kuziini'
+    isHobbyQ ? (lang === 'ro' ? 'Personalitate' : 'Personality') : currentQ < techCount ? (lang === 'ro' ? 'Evaluare Tehnica' : 'Technical Evaluation') : (lang === 'ro' ? 'Despre Kuziini' : 'About Kuziini')
 
   function handleSelect(optIndex) {
     setSelected(optIndex)
@@ -284,7 +303,7 @@ export default function MiniInterview({ formData, cvFile, startTime, onComplete,
           <section className="card interview-card">
             <div className="interview-loading">
               <div className="spinner" />
-              <p>Se trimite aplicarea...</p>
+              <p>{lang === 'ro' ? 'Se trimite aplicarea...' : 'Submitting application...'}</p>
             </div>
           </section>
         </div>
@@ -299,10 +318,9 @@ export default function MiniInterview({ formData, cvFile, startTime, onComplete,
         <div className="container success-wrap">
           <section className="card interview-card">
             <div className="interview-header">
-              <h1>Felicitari!</h1>
+              <h1>{lang === 'ro' ? 'Felicitari!' : 'Congratulations!'}</h1>
               <p className="interview-subtitle">
-                Ai obtinut un scor excelent! Poti incarca optional un portofoliu sau CV
-                pentru a-ti consolida aplicarea.
+                {lang === 'ro' ? 'Ai obtinut un scor excelent! Poti incarca optional un portofoliu sau CV pentru a-ti consolida aplicarea.' : 'You got an excellent score! You can optionally upload a portfolio or CV to strengthen your application.'}
               </p>
             </div>
 
@@ -329,7 +347,7 @@ export default function MiniInterview({ formData, cvFile, startTime, onComplete,
                 ) : (
                   <div className="upload-prompt">
                     <span className="upload-cloud-icon">&#128228;</span>
-                    <p>Click pentru a incarca un fisier</p>
+                    <p>{lang === 'ro' ? 'Click pentru a incarca un fisier' : 'Click to upload a file'}</p>
                     <span className="upload-hint">PDF, DOC, ZIP, JPG — max 10 MB</span>
                   </div>
                 )}
@@ -340,10 +358,10 @@ export default function MiniInterview({ formData, cvFile, startTime, onComplete,
 
             <div className="interview-footer">
               <button className="btn btn-secondary" onClick={handleSkipUpload} type="button">
-                Sari peste
+                {lang === 'ro' ? 'Sari peste' : 'Skip'}
               </button>
               <button className="btn btn-primary" onClick={handleSubmitWithUpload} type="button">
-                {portfolioFile ? 'Trimite cu portofoliu' : 'Trimite aplicarea'}
+                {portfolioFile ? (lang === 'ro' ? 'Trimite cu portofoliu' : 'Submit with portfolio') : (lang === 'ro' ? 'Trimite aplicarea' : 'Submit application')}
               </button>
             </div>
           </section>
@@ -359,15 +377,15 @@ export default function MiniInterview({ formData, cvFile, startTime, onComplete,
         <section className="card interview-card">
           <div className="interview-header">
             <div className="section-badge">{sectionLabel}</div>
-            <h1>Mini-Interviu</h1>
+            <h1>{lang === 'ro' ? 'Mini-Interviu' : 'Mini-Interview'}</h1>
             <p className="interview-subtitle">
-              Raspunde la urmatoarele intrebari pentru a ne ajuta sa evaluam profilul tau.
+              {lang === 'ro' ? 'Raspunde la urmatoarele intrebari pentru a ne ajuta sa evaluam profilul tau.' : 'Answer the following questions to help us evaluate your profile.'}
             </p>
             <div className="interview-progress-bar">
               <div className="interview-progress-fill" style={{ width: `${progress}%` }} />
             </div>
             <span className="interview-progress-text">
-              Intrebarea {currentQ + 1} din {total}
+              {lang === 'ro' ? 'Intrebarea' : 'Question'} {currentQ + 1} {lang === 'ro' ? 'din' : 'of'} {total}
             </span>
           </div>
 
@@ -376,7 +394,7 @@ export default function MiniInterview({ formData, cvFile, startTime, onComplete,
               <button className="back-arrow" onClick={handlePrev} type="button" title={currentQ === 0 ? 'Inapoi la formular' : 'Inapoi'}>
                 &#8592;
               </button>
-              <h2 className="question-text">{q.question}</h2>
+              <h2 className="question-text">{qIdToKey[q.id] ? qt(qIdToKey[q.id]) : q.question}</h2>
             </div>
 
             {isHobbyQ ? (
@@ -389,7 +407,7 @@ export default function MiniInterview({ formData, cvFile, startTime, onComplete,
                     onClick={() => { setSelected(i); setCustomHobby('') }}
                   >
                     <span className="hobby-icon">{opt.icon}</span>
-                    <span className="hobby-label">{opt.text}</span>
+                    <span className="hobby-label">{hobbyKeys[opt._oi != null ? opt._oi : i] ? qt(hobbyKeys[opt._oi != null ? opt._oi : i]) : opt.text}</span>
                   </button>
                 ))}
                 {selected !== null && q.options[selected]?.custom && (
@@ -398,7 +416,7 @@ export default function MiniInterview({ formData, cvFile, startTime, onComplete,
                     type="text"
                     value={customHobby}
                     onChange={(e) => setCustomHobby(e.target.value)}
-                    placeholder="Scrie hobby-ul tau..."
+                    placeholder={lang === 'ro' ? 'Scrie hobby-ul tau...' : 'Write your hobby...'}
                     autoFocus
                   />
                 )}
@@ -419,7 +437,7 @@ export default function MiniInterview({ formData, cvFile, startTime, onComplete,
                     type="button"
                   >
                     <span className="option-letter">{String.fromCharCode(65 + i)}</span>
-                    <span className="option-text">{opt.text}</span>
+                    <span className="option-text">{optionKeys[q.id] && opt._oi != null ? qt(optionKeys[q.id][opt._oi]) : opt.text}</span>
                   </button>
                 ))}
               </div>
@@ -435,7 +453,7 @@ export default function MiniInterview({ formData, cvFile, startTime, onComplete,
               disabled={!canProceed()}
               type="button"
             >
-              {currentQ < total - 1 ? 'Urmatoarea' : 'Finalizeaza'}
+              {currentQ < total - 1 ? (lang === 'ro' ? 'Urmatoarea' : 'Next') : (lang === 'ro' ? 'Finalizeaza' : 'Submit')}
             </button>
           </div>
         </section>

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import MiniInterview from './MiniInterview'
 import AdminDashboard from './AdminDashboard'
+import { LangToggle, useT, useLang } from './i18n'
 
 // ── Extract YouTube video ID from URL or plain ID ──
 function extractYtId(input) {
@@ -195,6 +196,8 @@ function AdminLogin({ onSuccess, onCancel }) {
 }
 
 export default function App() {
+  const t = useT()
+  const { lang } = useLang()
   const [isAdmin, setIsAdmin] = useState(() => localStorage.getItem('kuziini_admin') === 'true')
   const [showLogin, setShowLogin] = useState(false)
   const [installPrompt, setInstallPrompt] = useState(null)
@@ -396,6 +399,7 @@ export default function App() {
         <CursorGlow />
         {musicPlayer}
         {loginModal}
+        <LangToggle />
         <div className="welcome-page">
           <div className="welcome-content">
             {/* Top half — logo only, large and centered */}
@@ -406,10 +410,10 @@ export default function App() {
 
             {/* Bottom half — title, music, CTA */}
             <div className="welcome-bottom">
-              <h1 className="welcome-title">Aplica pentru rolul de Proiectant Mobilier</h1>
+              <h1 className="welcome-title">{t('welcomeTitle')}</h1>
               <div className="gold-line" style={{ margin: '20px auto 28px' }} />
 
-              <p className="welcome-sub">Alege atmosfera potrivita</p>
+              <p className="welcome-sub">{t('welcomeSub')}</p>
               <div className="genre-selector genre-selector-welcome">
                 {getGenres().map((g) => (
                   <button
@@ -428,12 +432,12 @@ export default function App() {
                 className="btn btn-primary welcome-start-btn"
                 onClick={() => { setStep('form'); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
               >
-                Incepe aplicarea
+                {t('welcomeStart')}
               </button>
 
               {installPrompt && !installed && (
                 <button className="install-btn" onClick={handleInstall}>
-                  &#128229; Instaleaza pe desktop
+                  &#128229; {t('installBtn')}
                 </button>
               )}
 
@@ -453,16 +457,19 @@ export default function App() {
       <>
         <CursorGlow />
         {musicPlayer}
+        <LangToggle />
         <div className="page">
           <button className="page-back-btn" onClick={() => { setStep('form'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} title="Inapoi">&#8592;</button>
+          {isAdminSession && (
+            <button className="page-next-btn" onClick={() => { setStep('interview'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} title="Sari la interviu (admin)">&#8594;</button>
+          )}
           <div className="container success-wrap">
             <section className="card interview-card">
               <div style={{ textAlign: 'center', padding: '20px 0' }}>
                 <div style={{ fontSize: '3rem', marginBottom: 16 }}>📄</div>
-                <h1 style={{ fontSize: '1.8rem', marginBottom: 12 }}>Ai uitat CV-ul!</h1>
+                <h1 style={{ fontSize: '1.8rem', marginBottom: 12 }}>{t('cvForgot')}</h1>
                 <p className="interview-subtitle" style={{ maxWidth: 500, margin: '0 auto 28px' }}>
-                  Candidatii care ataseaza un CV au cu <strong style={{ color: 'var(--gold)', fontSize: '1.3em' }}>90%</strong> sanse
-                  mai mari sa fie selectati pentru interviu. Incarca-l acum!
+                  {lang === 'ro' ? 'Candidatii care ataseaza un CV au cu' : 'Candidates who attach a CV have a'} <strong style={{ color: 'var(--gold)', fontSize: '1.3em' }}>90%</strong> {t('cvBoost')}
                 </p>
                 <div className="upload-zone" style={{ maxWidth: 400, margin: '0 auto' }}>
                   <input ref={cvInputRef} type="file" accept=".pdf,.doc,.docx" style={{ display: 'none' }}
@@ -484,10 +491,10 @@ export default function App() {
                 </div>
                 <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 28 }}>
                   <button className="btn btn-secondary" onClick={() => { setStep('interview'); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>
-                    Continua fara CV
+                    {t('cvContinueWithout')}
                   </button>
                   <button className="btn btn-primary" onClick={() => { setStep('interview'); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>
-                    {cvFile ? 'Continua cu CV' : 'Continua'}
+                    {cvFile ? t('cvContinueWith') : t('cvContinue')}
                   </button>
                 </div>
               </div>
@@ -504,12 +511,14 @@ export default function App() {
       <>
         <CursorGlow />
         {musicPlayer}
+        <LangToggle />
         <MiniInterview
           formData={{ ...form, hasCv: !!cvFile, hasPhoto: !!photoFile, tourVisited, tourTimeSeconds }}
           cvFile={cvFile}
           startTime={startTimeRef.current}
           onComplete={handleInterviewComplete}
           onBack={handleInterviewBack}
+          lang={lang}
         />
       </>
     )
@@ -521,22 +530,21 @@ export default function App() {
       <>
         <CursorGlow />
         {musicPlayer}
+        <LangToggle />
         <div className="page">
           <button className="page-back-btn" onClick={resetForm} title="Inapoi">&#8592;</button>
           <div className="container success-wrap">
             <Reveal>
               <section className="card success-card">
                 <div className="success-icon">&#10003;</div>
-                <h1 className="success-thanks">Multumim!</h1>
+                <h1 className="success-thanks">{t('thankYou')}</h1>
                 <h2 className="success-name">{form.fullName}</h2>
                 <div className="gold-line" style={{ margin: '20px auto 28px' }} />
                 <p className="success-message">
-                  Echipa <strong>Vali Kuziini</strong> iti multumeste ca ai aplicat pentru pozitia de
-                  Proiectant Mobilier. Vom evalua solicitarea ta si vom reveni cu un raspuns
-                  in cel mai scurt timp.
+                  {lang === 'ro' ? 'Echipa' : 'The'} <strong>Kuziini</strong> {t('thankYouMsg1')}
                 </p>
                 <p className="success-message" style={{ marginTop: 16 }}>
-                  Iti dorim o zi frumoasa!
+                  {t('thankYouMsg2')}
                 </p>
                 <div className="success-signature">
                   <div className="logo-wrap" style={{ width: '120px', margin: '24px auto 16px' }}>
@@ -544,7 +552,7 @@ export default function App() {
                   </div>
                   <span>Echipa Kuziini Recruitment</span>
                 </div>
-                <button className="btn btn-primary" onClick={resetForm} style={{ marginTop: 28 }}>Inapoi la pagina principala</button>
+                <button className="btn btn-primary" onClick={resetForm} style={{ marginTop: 28 }}>{t('backToHome')}</button>
               </section>
             </Reveal>
           </div>
@@ -559,6 +567,7 @@ export default function App() {
       <CursorGlow />
       <MusicPlayer genre={form.musicGenre} />
       {loginModal}
+      <LangToggle />
       <div className="page">
         <button className="page-back-btn" onClick={() => { setStep('welcome'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} title="Inapoi">&#8592;</button>
         {isAdminSession && (
@@ -568,7 +577,7 @@ export default function App() {
           <section className="card main-card">
             <Reveal>
               <p className="lead" style={{ marginTop: 0 }}>
-                Cautam un profesionist cu experienta reala in proiectare mobilier si lucru in Corpus Solutions 3D.
+                {t('formLead')}
               </p>
               <div style={{ display: 'flex', justifyContent: 'center', margin: '16px 0 8px' }}>
                 <img src="/corpus-logo.png" alt="Corpus Solutions 3D" style={{ maxWidth: '180px', height: 'auto', opacity: 0.85 }} />
@@ -580,9 +589,9 @@ export default function App() {
 
                 {/* ── Gender + Photo ── */}
                 <div className="two-cols">
-                  <Field label="Gen" required error={errors.gender}>
+                  <Field label={t('labelGender')} required error={errors.gender}>
                     <div className="gender-selector">
-                      {[{ v: 'masculin', l: 'Masculin', i: '♂' }, { v: 'feminin', l: 'Feminin', i: '♀' }, { v: 'altul', l: 'Altul', i: '⚧' }].map((g) => (
+                      {[{ v: 'masculin', l: t('genderM'), i: '♂' }, { v: 'feminin', l: t('genderF'), i: '♀' }, { v: 'altul', l: t('genderO'), i: '⚧' }].map((g) => (
                         <button key={g.v} type="button"
                           className={`gender-btn ${form.gender === g.v ? 'gender-active' : ''}`}
                           onClick={() => updateField('gender', g.v)}
@@ -592,7 +601,7 @@ export default function App() {
                       ))}
                     </div>
                   </Field>
-                  <Field label="Foto (optional)">
+                  <Field label={t('labelPhoto')}>
                     <input ref={photoInputRef} type="file" accept="image/*" style={{ display: 'none' }}
                       onChange={(e) => setPhotoFile(e.target.files[0] || null)} />
                     <div className="photo-upload" onClick={() => photoInputRef.current?.click()}>
@@ -602,65 +611,65 @@ export default function App() {
                           <span>{photoFile.name}</span>
                         </div>
                       ) : (
-                        <span className="photo-placeholder">📷 Adauga o foto</span>
+                        <span className="photo-placeholder">{lang === 'ro' ? '📷 Adauga o foto' : '📷 Add a photo'}</span>
                       )}
                     </div>
                   </Field>
                 </div>
 
                 <div className="two-cols">
-                  <Field label="Nume complet" required error={errors.fullName}>
+                  <Field label={t('labelName')} required error={errors.fullName}>
                     <input value={form.fullName} onChange={(e) => updateField('fullName', e.target.value)} placeholder="Andrei Popescu" />
                   </Field>
-                  <Field label="Varsta" required error={errors.age}>
+                  <Field label={t('labelAge')} required error={errors.age}>
                     <input type="number" min="18" max="65" value={form.age} onChange={(e) => updateField('age', e.target.value)} placeholder="28" />
                   </Field>
                 </div>
 
                 <div className="two-cols">
-                  <Field label="Telefon" required error={errors.phone}>
+                  <Field label={t('labelPhone')} required error={errors.phone}>
                     <input value={form.phone} onChange={(e) => updateField('phone', e.target.value)} placeholder="07xx xxx xxx" />
                   </Field>
-                  <Field label="Email" required error={errors.email}>
-                    <input type="email" value={form.email} onChange={(e) => updateField('email', e.target.value)} placeholder="nume@email.com" />
+                  <Field label={t('labelEmail')} required error={errors.email}>
+                    <input type="email" value={form.email} onChange={(e) => updateField('email', e.target.value)} placeholder="name@email.com" />
                   </Field>
                 </div>
 
                 <div className="two-cols">
-                  <Field label="Oras" required error={errors.city}>
+                  <Field label={t('labelCity')} required error={errors.city}>
                     <input value={form.city} onChange={(e) => updateField('city', e.target.value)} placeholder="Bucuresti" />
                   </Field>
-                  <Field label="Experienta totala in mobilier (ani)" required error={errors.experienceYears}>
+                  <Field label={t('labelExperience')} required error={errors.experienceYears}>
                     <input value={form.experienceYears} onChange={(e) => updateField('experienceYears', e.target.value)} placeholder="4" />
                   </Field>
                 </div>
 
                 <div className="two-cols">
-                  <Field label="Experienta in Corpus Solutions (ani)" required error={errors.corpusYears}>
+                  <Field label={t('labelCorpusYears')} required error={errors.corpusYears}>
                     <input value={form.corpusYears} onChange={(e) => updateField('corpusYears', e.target.value)} placeholder="2" />
                   </Field>
                 </div>
 
                 <div className="two-cols">
-                  <Field label="Rol actual" required error={errors.currentRole}>
-                    <input value={form.currentRole} onChange={(e) => updateField('currentRole', e.target.value)} placeholder="Proiectant mobilier senior" />
+                  <Field label={t('labelCurrentRole')} required error={errors.currentRole}>
+                    <input value={form.currentRole} onChange={(e) => updateField('currentRole', e.target.value)} placeholder={lang === 'ro' ? 'Proiectant mobilier senior' : 'Senior furniture designer'} />
                   </Field>
-                  <Field label="Disponibil din" required error={errors.availableFrom}>
-                    <input value={form.availableFrom} onChange={(e) => updateField('availableFrom', e.target.value)} placeholder="Imediat / 30 zile" />
+                  <Field label={t('labelAvailable')} required error={errors.availableFrom}>
+                    <input value={form.availableFrom} onChange={(e) => updateField('availableFrom', e.target.value)} placeholder={lang === 'ro' ? 'Imediat / 30 zile' : 'Immediately / 30 days'} />
                   </Field>
                 </div>
 
                 <div className="two-cols">
-                  <Field label="Portofoliu / CV link">
+                  <Field label={t('labelPortfolio')}>
                     <input value={form.portfolio} onChange={(e) => updateField('portfolio', e.target.value)} placeholder="Link Drive / PDF / website" />
                   </Field>
-                  <Field label="LinkedIn">
-                    <input value={form.linkedin} onChange={(e) => updateField('linkedin', e.target.value)} placeholder="Link profil LinkedIn" />
+                  <Field label={t('labelLinkedin')}>
+                    <input value={form.linkedin} onChange={(e) => updateField('linkedin', e.target.value)} placeholder="LinkedIn profile link" />
                   </Field>
                 </div>
 
                 {/* ── CV Upload ── */}
-                <Field label="CV / Portofoliu atasat">
+                <Field label={t('labelCv')}>
                   <input ref={cvInputRef} type="file" accept=".pdf,.doc,.docx,.zip" style={{ display: 'none' }}
                     onChange={(e) => setCvFile(e.target.files[0] || null)} />
                   <div className="upload-area" onClick={() => cvInputRef.current?.click()} style={{ padding: '14px 16px', minHeight: 52 }}>
@@ -670,35 +679,35 @@ export default function App() {
                         <span>{cvFile.name}</span>
                       </div>
                     ) : (
-                      <span style={{ color: 'var(--ash)', fontSize: '0.85rem' }}>Click pentru a incarca CV (PDF, DOC)</span>
+                      <span style={{ color: 'var(--ash)', fontSize: '0.85rem' }}>{lang === 'ro' ? 'Click pentru a incarca CV (PDF, DOC)' : 'Click to upload CV (PDF, DOC)'}</span>
                     )}
                   </div>
                 </Field>
 
-                <Field label="Salariu net dorit" required error={errors.expectedSalary}>
+                <Field label={t('labelSalary')} required error={errors.expectedSalary}>
                   <input value={form.expectedSalary} onChange={(e) => updateField('expectedSalary', e.target.value)} placeholder="4800 RON" />
                 </Field>
 
-                <Field label="Experienta relevanta / motivatie" required error={errors.motivation}>
+                <Field label={t('labelMotivation')} required error={errors.motivation}>
                   <textarea rows="6" value={form.motivation} onChange={(e) => updateField('motivation', e.target.value)}
-                    placeholder="Spune-ne ce tipuri de proiecte ai facut, cat de bine stapanesti Corpus Solutions si partea de executie." />
+                    placeholder={lang === 'ro' ? 'Spune-ne ce tipuri de proiecte ai facut, cat de bine stapanesti Corpus Solutions si partea de executie.' : 'Tell us about the types of projects you have done, how well you know Corpus Solutions and the production side.'} />
                 </Field>
 
                 <div className="checks">
                   <label className="check-row">
                     <input type="checkbox" checked={form.relocate} onChange={(e) => updateField('relocate', e.target.checked)} />
-                    <span>Sunt deschis(a) la lucru on-site / hibrid in Bucuresti.</span>
+                    <span>{t('labelRelocate')}</span>
                   </label>
                   <label className="check-row">
                     <input type="checkbox" checked={form.gdpr} onChange={(e) => updateField('gdpr', e.target.checked)} />
-                    <span>Sunt de acord cu prelucrarea datelor mele pentru procesul de recrutare Kuziini. *</span>
+                    <span>{t('labelGdpr')} *</span>
                   </label>
                   {errors.gdpr ? <div className="error">{errors.gdpr}</div> : null}
                 </div>
 
                 <div className="form-footer">
-                  <span>Completare: {completion}%</span>
-                  <button type="submit" className="btn btn-primary">Confirma si continua</button>
+                  <span>{lang === 'ro' ? 'Completare' : 'Completion'}: {completion}%</span>
+                  <button type="submit" className="btn btn-primary">{t('btnConfirm')}</button>
                 </div>
               </form>
             </Reveal>
@@ -707,24 +716,24 @@ export default function App() {
           <aside className="side-column">
             <Reveal>
               <section className="card side-card">
-                <h2>Rolul</h2>
+                <h2>{lang === 'ro' ? 'Rolul' : 'The Role'}</h2>
                 <ul>
-                  <li>Proiectare corpuri si ansambluri de mobilier premium</li>
-                  <li>Liste de materiale si accesorii pentru productie</li>
-                  <li>Optimizare tehnica pentru executie corecta</li>
-                  <li>Colaborare directa cu designul si productia</li>
+                  <li>{lang === 'ro' ? 'Proiectare corpuri si ansambluri de mobilier premium' : 'Design of premium furniture bodies and assemblies'}</li>
+                  <li>{lang === 'ro' ? 'Liste de materiale si accesorii pentru productie' : 'Material and accessory lists for production'}</li>
+                  <li>{lang === 'ro' ? 'Optimizare tehnica pentru executie corecta' : 'Technical optimization for correct execution'}</li>
+                  <li>{lang === 'ro' ? 'Colaborare directa cu designul si productia' : 'Direct collaboration with design and production'}</li>
                 </ul>
               </section>
             </Reveal>
 
             <Reveal>
               <section className="card side-card">
-                <h2>Ce cauta Kuziini</h2>
+                <h2>{lang === 'ro' ? 'Ce cauta Kuziini' : 'What Kuziini looks for'}</h2>
                 <ul>
-                  <li>Experienta reala in Corpus Solutions</li>
-                  <li>Cunostinte de accesorii si logica de montaj</li>
-                  <li>Atentie la detaliu si gandire de productie</li>
-                  <li>Seriozitate, viteza si autonomie</li>
+                  <li>{lang === 'ro' ? 'Experienta reala in Corpus Solutions' : 'Real experience in Corpus Solutions'}</li>
+                  <li>{lang === 'ro' ? 'Cunostinte de accesorii si logica de montaj' : 'Knowledge of accessories and assembly logic'}</li>
+                  <li>{lang === 'ro' ? 'Atentie la detaliu si gandire de productie' : 'Attention to detail and production thinking'}</li>
+                  <li>{lang === 'ro' ? 'Seriozitate, viteza si autonomie' : 'Reliability, speed and autonomy'}</li>
                 </ul>
               </section>
             </Reveal>
@@ -737,10 +746,10 @@ export default function App() {
                   <div className="experience-spinning-logo">
                     <img src="/logo-kuziini.png" alt="" />
                   </div>
-                  <strong className="experience-card-title">Intra in universul Kuziini</strong>
+                  <strong className="experience-card-title">{t('sidebarExperience')}</strong>
                   {tourVisited && (
                     <span className="tour-visited-badge">
-                      Vizitat {tourTimeSeconds > 0 ? `(${Math.floor(tourTimeSeconds/60)}m ${tourTimeSeconds%60}s)` : ''}
+                      {lang === 'ro' ? 'Vizitat' : 'Visited'} {tourTimeSeconds > 0 ? `(${Math.floor(tourTimeSeconds/60)}m ${tourTimeSeconds%60}s)` : ''}
                     </span>
                   )}
                   <span className="experience-card-finger">
