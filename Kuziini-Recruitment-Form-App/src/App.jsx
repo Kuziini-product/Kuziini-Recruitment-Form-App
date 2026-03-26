@@ -272,6 +272,39 @@ export default function App() {
     return Math.round((filled / (fields.length + 3)) * 100)
   }, [form])
 
+  // Save partial when user leaves during interview (browser back, close tab, refresh)
+  useEffect(() => {
+    function saveOnLeave() {
+      if ((step === 'interview' || step === 'cvPrompt') && form.email) {
+        navigator.sendBeacon('/api/partial', new Blob([JSON.stringify({ formData: form })], { type: 'application/json' }))
+      }
+    }
+
+    // Intercept browser back button
+    if (step === 'interview' || step === 'cvPrompt' || step === 'form') {
+      window.history.pushState(null, '', window.location.href)
+      function onPopState() {
+        if (step === 'interview') {
+          saveOnLeave()
+          setStep('form')
+          window.history.pushState(null, '', window.location.href)
+        } else if (step === 'cvPrompt') {
+          setStep('form')
+          window.history.pushState(null, '', window.location.href)
+        } else if (step === 'form') {
+          setStep('welcome')
+          window.history.pushState(null, '', window.location.href)
+        }
+      }
+      window.addEventListener('popstate', onPopState)
+      window.addEventListener('beforeunload', saveOnLeave)
+      return () => {
+        window.removeEventListener('popstate', onPopState)
+        window.removeEventListener('beforeunload', saveOnLeave)
+      }
+    }
+  }, [step, form])
+
   useEffect(() => {
     if (window.location.hash === '#admin') setShowLogin(true)
     function onHash() { if (window.location.hash === '#admin') setShowLogin(true) }
