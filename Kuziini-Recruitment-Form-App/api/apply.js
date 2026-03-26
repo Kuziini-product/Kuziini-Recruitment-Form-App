@@ -30,7 +30,7 @@ export default async function handler(req, res) {
 
         const [row] = await sql`
           INSERT INTO applicants
-            (full_name, phone, email, gender, music_genre, city, experience_years, corpus_years,
+            (full_name, phone, email, gender, music_genre, age, city, experience_years, corpus_years,
              "current_role", portfolio_link, linkedin, motivation,
              expected_salary, available_from, relocate, has_cv, has_photo,
              tour_visited, tour_time_seconds,
@@ -38,7 +38,7 @@ export default async function handler(req, res) {
              completion_time_seconds, attempt_number)
           VALUES
             (${formData.fullName}, ${formData.phone}, ${formData.email},
-             ${formData.gender || ''}, ${formData.musicGenre || ''},
+             ${formData.gender || ''}, ${formData.musicGenre || ''}, ${formData.age || ''},
              ${formData.city || ''}, ${formData.experienceYears}, ${formData.corpusYears},
              ${formData.currentRole || ''}, ${formData.portfolio || ''}, ${formData.linkedin || ''},
              ${formData.motivation}, ${formData.expectedSalary || ''}, ${formData.availableFrom || ''},
@@ -74,14 +74,25 @@ export default async function handler(req, res) {
 
       const returningNote = isReturning ? `<div style="background:#fef3c7;padding:12px;border-radius:8px;margin-bottom:16px;"><strong>Atentie:</strong> Acest aplicant a mai aplicat anterior (aplicarea #${attemptNumber}).</div>` : ''
 
-      const info = await transporter.sendMail({
-        from: '"Kuziini Recruitment" <noreply@kuziini.ro>',
+      const fromEmail = process.env.SMTP_USER || 'my@kuziini.ro'
+
+      // 1. Notify admin
+      await transporter.sendMail({
+        from: `"Kuziini Recruitment" <${fromEmail}>`,
         to: 'my@kuziini.ro',
         subject: `[${classification}]${isReturning ? ' [RE-APLICARE]' : ''} ${formData.fullName} - Proiectant Mobilier`,
         html: buildEmailHtml(formData, interviewAnswers, interviewScore, maxScore, classification, label, completionTimeSeconds, aiAnalysis, returningNote),
       })
-      const previewUrl = nodemailer.getTestMessageUrl(info)
-      if (previewUrl) console.log('Email preview:', previewUrl)
+
+      // 2. Thank-you email to applicant
+      if (formData.email) {
+        await transporter.sendMail({
+          from: `"Echipa Kuziini" <${fromEmail}>`,
+          to: formData.email,
+          subject: 'Multumim pentru aplicarea ta - Kuziini Recruitment',
+          html: buildThankYouEmail(formData.fullName),
+        })
+      }
     } catch (emailErr) {
       console.error('Email failed:', emailErr.message)
     }
@@ -158,6 +169,33 @@ function buildEmailHtml(form, answers, score, maxScore, classification, label, c
     </div>
     <div style="background:#f8fafc;padding:16px;text-align:center;border:1px solid #e5e7eb;border-top:0;border-radius:0 0 12px 12px;">
       <p style="margin:0;color:#6b7280;font-size:13px;">Kuziini Recruitment App</p>
+    </div>
+  </div>`
+}
+
+function buildThankYouEmail(name) {
+  return `
+  <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+    <div style="background:#111827;padding:32px;text-align:center;border-radius:12px 12px 0 0;">
+      <h1 style="margin:0;color:#c9a84c;font-size:28px;">Multumim!</h1>
+      <p style="margin:12px 0 0;color:#e5e7eb;font-size:16px;">${name}</p>
+    </div>
+    <div style="padding:32px;background:#fff;border:1px solid #e5e7eb;">
+      <p style="font-size:16px;color:#374151;line-height:1.7;margin:0 0 16px;">
+        Echipa <strong style="color:#c9a84c;">Vali Kuziini</strong> iti multumeste ca ai aplicat pentru pozitia de
+        <strong>Proiectant Mobilier — Corpus Solutions 3D</strong>.
+      </p>
+      <p style="font-size:16px;color:#374151;line-height:1.7;margin:0 0 16px;">
+        Vom evalua solicitarea ta si vom reveni cu un raspuns in cel mai scurt timp.
+      </p>
+      <p style="font-size:16px;color:#374151;line-height:1.7;margin:0 0 24px;">
+        Iti dorim o zi frumoasa!
+      </p>
+      <div style="text-align:center;padding:20px 0;border-top:1px solid #e5e7eb;">
+        <p style="margin:0;color:#c9a84c;font-weight:bold;font-size:18px;">Kuziini</p>
+        <p style="margin:4px 0 0;color:#9ca3af;font-size:13px;">Echipa Kuziini Recruitment</p>
+        <p style="margin:4px 0 0;color:#9ca3af;font-size:13px;">my@kuziini.ro | 0723 333 221</p>
+      </div>
     </div>
   </div>`
 }

@@ -489,7 +489,11 @@ export default function AdminDashboard({ onExit, onHome }) {
                       </span>
                       <div className="applicant-name-col">
                         <strong>{a.full_name}</strong>
-                        <span className="applicant-sub">{a.email} | {a.phone}</span>
+                        <span className="applicant-sub">
+                          <a href={`mailto:${a.email}`} onClick={(e) => e.stopPropagation()}>{a.email}</a>
+                          {' | '}
+                          <a href={`https://wa.me/${(a.phone || '').replace(/\D/g, '').replace(/^0/, '40')}`} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>{a.phone}</a>
+                        </span>
                       </div>
                     </div>
                     <div className="applicant-stats">
@@ -518,7 +522,36 @@ export default function AdminDashboard({ onExit, onHome }) {
                   {/* Expanded detail inline */}
                   {expandedId === a.id && expandedData && (
                     <div className="applicant-detail">
+                      {/* Contact quick actions */}
+                      <div className="detail-contact-bar">
+                        <a href={`mailto:${expandedData.email}`} className="contact-action">
+                          ✉️ Email
+                        </a>
+                        <a href={`https://wa.me/${(expandedData.phone || '').replace(/\D/g, '').replace(/^0/, '40')}`} target="_blank" rel="noreferrer" className="contact-action contact-whatsapp">
+                          💬 WhatsApp
+                        </a>
+                        {expandedData.phone && (
+                          <a href={`tel:${expandedData.phone}`} className="contact-action">
+                            📞 Suna
+                          </a>
+                        )}
+                      </div>
+
+                      {/* Avatar + basic info */}
+                      <div className="detail-identity">
+                        <div className="detail-avatar">
+                          {expandedData.has_photo ? '👤' : expandedData.gender === 'feminin' ? '👩' : expandedData.gender === 'masculin' ? '👨' : '🧑'}
+                        </div>
+                        <div className="detail-identity-info">
+                          <strong>{expandedData.full_name}</strong>
+                          <span>{expandedData.gender || '-'} | {expandedData.age || '-'} ani | {expandedData.city || '-'}</span>
+                          <span>🎵 {expandedData.music_genre || '-'}</span>
+                        </div>
+                      </div>
+
                       <div className="detail-grid">
+                        <div className="detail-item"><span>Varsta</span><strong>{expandedData.age || '-'} ani</strong></div>
+                        <div className="detail-item"><span>Gen</span><strong>{expandedData.gender || '-'}</strong></div>
                         <div className="detail-item"><span>Oras</span><strong>{expandedData.city || '-'}</strong></div>
                         <div className="detail-item"><span>Experienta totala</span><strong>{expandedData.experience_years} ani</strong></div>
                         <div className="detail-item"><span>Experienta Corpus</span><strong>{expandedData.corpus_years} ani</strong></div>
@@ -526,10 +559,22 @@ export default function AdminDashboard({ onExit, onHome }) {
                         <div className="detail-item"><span>Salariu dorit</span><strong>{expandedData.expected_salary || '-'}</strong></div>
                         <div className="detail-item"><span>Disponibil din</span><strong>{expandedData.available_from || '-'}</strong></div>
                         <div className="detail-item"><span>Relocare</span><strong>{expandedData.relocate ? 'Da' : 'Nu'}</strong></div>
+                        <div className="detail-item"><span>Muzica</span><strong>{expandedData.music_genre || '-'}</strong></div>
                         <div className="detail-item"><span>Timp completare</span><strong>{expandedData.completion_time_formatted}</strong></div>
-                        <div className="detail-item"><span>Portfolio</span><strong>{expandedData.portfolio_link || '-'}</strong></div>
-                        <div className="detail-item"><span>LinkedIn</span><strong>{expandedData.linkedin || '-'}</strong></div>
+                        <div className="detail-item"><span>CV atasat</span><strong>{expandedData.has_cv ? '✅ Da' : '❌ Nu'}</strong></div>
+                        <div className="detail-item"><span>Foto</span><strong>{expandedData.has_photo ? '✅ Da' : '❌ Nu'}</strong></div>
+                        <div className="detail-item"><span>Tur 360</span><strong>{expandedData.tour_visited ? `✅ ${expandedData.tour_time_seconds || 0}s` : '❌ Nu'}</strong></div>
+                        {expandedData.portfolio_link && <div className="detail-item"><span>Portfolio</span><a href={expandedData.portfolio_link} target="_blank" rel="noreferrer">{expandedData.portfolio_link}</a></div>}
+                        {expandedData.linkedin && <div className="detail-item"><span>LinkedIn</span><a href={expandedData.linkedin} target="_blank" rel="noreferrer">{expandedData.linkedin}</a></div>}
                       </div>
+
+                      {/* Hobby from answers */}
+                      {expandedData.interview_answers?.find(ans => ans.type === 'hobby') && (
+                        <div className="detail-hobby">
+                          <span>Hobby:</span>
+                          <strong>{expandedData.interview_answers.find(ans => ans.type === 'hobby').selectedAnswer}</strong>
+                        </div>
+                      )}
 
                       {expandedData.motivation && (
                         <div className="detail-motivation">

@@ -53,6 +53,7 @@ export async function initDb() {
   if (!colNames.includes('has_photo')) await sql`ALTER TABLE applicants ADD COLUMN has_photo BOOLEAN DEFAULT false`
   if (!colNames.includes('ai_analysis')) await sql`ALTER TABLE applicants ADD COLUMN ai_analysis TEXT DEFAULT ''`
   if (!colNames.includes('attempt_number')) await sql`ALTER TABLE applicants ADD COLUMN attempt_number INTEGER DEFAULT 1`
+  if (!colNames.includes('age')) await sql`ALTER TABLE applicants ADD COLUMN age TEXT DEFAULT ''`
   if (!colNames.includes('tour_visited')) await sql`ALTER TABLE applicants ADD COLUMN tour_visited BOOLEAN DEFAULT false`
   if (!colNames.includes('tour_time_seconds')) await sql`ALTER TABLE applicants ADD COLUMN tour_time_seconds INTEGER DEFAULT 0`
 }
