@@ -192,16 +192,54 @@ export default function AdminDashboard({ onExit, onHome }) {
   }, [])
 
   // When stats load, calculate unseen applicants
+  // Update favicon with badge number
+  function setFaviconBadge(count) {
+    const canvas = document.createElement('canvas')
+    canvas.width = 64
+    canvas.height = 64
+    const ctx = canvas.getContext('2d')
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, 64, 64)
+      if (count > 0) {
+        // Red circle
+        ctx.fillStyle = '#dc2626'
+        ctx.beginPath()
+        ctx.arc(50, 14, 14, 0, 2 * Math.PI)
+        ctx.fill()
+        // White border
+        ctx.strokeStyle = '#fff'
+        ctx.lineWidth = 2
+        ctx.stroke()
+        // Number
+        ctx.fillStyle = '#fff'
+        ctx.font = 'bold 16px Arial'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText(count > 99 ? '99+' : String(count), 50, 15)
+      }
+      // Set favicon
+      let link = document.querySelector("link[rel='icon']")
+      if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link) }
+      link.href = canvas.toDataURL()
+    }
+    img.src = '/icon-192.png'
+  }
+
   useEffect(() => {
     if (!stats) return
     const lastSeen = parseInt(localStorage.getItem('kuziini_last_seen_count') || '0')
     const unseen = Math.max(0, stats.total - lastSeen)
     setUnseenCount(unseen)
 
-    // Set badge on app icon
     if (unseen > 0) {
       if ('setAppBadge' in navigator) navigator.setAppBadge(unseen).catch(() => {})
       document.title = `(${unseen}) Kuziini Admin`
+      setFaviconBadge(unseen)
+    } else {
+      document.title = 'Kuziini Admin'
+      setFaviconBadge(0)
     }
   }, [stats])
 
@@ -246,6 +284,7 @@ export default function AdminDashboard({ onExit, onHome }) {
       setUnseenCount(0)
       if ('clearAppBadge' in navigator) navigator.clearAppBadge().catch(() => {})
       document.title = 'Kuziini Admin'
+      setFaviconBadge(0)
     }
   }
 
