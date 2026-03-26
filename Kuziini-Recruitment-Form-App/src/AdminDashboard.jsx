@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const API = ''
 
@@ -243,16 +243,22 @@ export default function AdminDashboard({ onExit, onHome }) {
     }
   }, [stats])
 
-  // Poll for new applicants every 20s
+  // Poll for new applicants every 15s
+  const prevTotalRef = useRef(0)
+
   useEffect(() => {
+    if (stats) prevTotalRef.current = stats.total
+
     const interval = setInterval(async () => {
       try {
         const res = await fetch('/api/admin/stats')
         const newStats = await res.json()
-        const lastSeen = parseInt(localStorage.getItem('kuziini_last_seen_count') || '0')
-        const unseen = Math.max(0, newStats.total - lastSeen)
 
-        if (unseen > unseenCount) {
+        if (newStats.total > prevTotalRef.current) {
+          prevTotalRef.current = newStats.total
+          const lastSeen = parseInt(localStorage.getItem('kuziini_last_seen_count') || '0')
+          const unseen = Math.max(0, newStats.total - lastSeen)
+
           setUnseenCount(unseen)
           setNewAlert(true)
           setTimeout(() => setNewAlert(false), 5000)
@@ -268,14 +274,15 @@ export default function AdminDashboard({ onExit, onHome }) {
           // Badge
           if ('setAppBadge' in navigator) navigator.setAppBadge(unseen).catch(() => {})
           document.title = `(${unseen}) Kuziini Admin`
+          setFaviconBadge(unseen)
 
           loadData()
         }
       } catch {}
-    }, 20000)
+    }, 15000)
 
     return () => clearInterval(interval)
-  }, [unseenCount])
+  }, [stats])
 
   // Mark all as seen (clear badge)
   function markAllSeen() {
