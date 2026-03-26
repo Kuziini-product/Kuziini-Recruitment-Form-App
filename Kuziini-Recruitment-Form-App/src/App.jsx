@@ -239,7 +239,8 @@ export default function App() {
   }
   const [form, setForm] = useState(initialForm)
   const [errors, setErrors] = useState({})
-  const [step, setStep] = useState('welcome') // welcome | interview | form | cvPrompt | success
+  const [step, setStep] = useState('welcome') // welcome | emailCapture | interview | form | cvPrompt | success
+  const [emailError, setEmailError] = useState('')
   const [result, setResult] = useState(null)
   const [interviewData, setInterviewData] = useState(null) // stored answers from interview step
   const [photoFile, setPhotoFile] = useState(null)
@@ -276,23 +277,26 @@ export default function App() {
     return Math.round((filled / (fields.length + 3)) * 100)
   }, [form])
 
-  // Save partial when user leaves during form (browser back, close tab, refresh)
+  // Save partial when user leaves during interview/form (browser back, close tab, refresh)
   useEffect(() => {
     function saveOnLeave() {
-      if ((step === 'form' || step === 'cvPrompt') && form.email) {
+      if ((step === 'interview' || step === 'form' || step === 'cvPrompt') && form.email) {
         navigator.sendBeacon('/api/partial', new Blob([JSON.stringify({ formData: form })], { type: 'application/json' }))
       }
     }
 
     // Intercept browser back button
-    if (step === 'interview' || step === 'cvPrompt' || step === 'form') {
+    if (step === 'emailCapture' || step === 'interview' || step === 'cvPrompt' || step === 'form') {
       window.history.pushState(null, '', window.location.href)
       function onPopState() {
-        if (step === 'interview') {
+        if (step === 'emailCapture') {
           setStep('welcome')
           window.history.pushState(null, '', window.location.href)
-        } else if (step === 'form') {
+        } else if (step === 'interview') {
           saveOnLeave()
+          setStep('emailCapture')
+          window.history.pushState(null, '', window.location.href)
+        } else if (step === 'form') {
           setStep('interview')
           window.history.pushState(null, '', window.location.href)
         } else if (step === 'cvPrompt') {
@@ -422,13 +426,14 @@ export default function App() {
   }
 
   function handleInterviewBack() {
-    setStep('welcome')
+    setStep('emailCapture')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   function resetForm() {
     setForm(initialForm)
     setErrors({})
+    setEmailError('')
     setResult(null)
     setInterviewData(null)
     setPhotoFile(null)
@@ -475,7 +480,7 @@ export default function App() {
 
               <button
                 className="btn btn-primary welcome-start-btn"
-                onClick={() => { setStep('interview'); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                onClick={() => { setStep('emailCapture'); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
               >
                 {t('welcomeStart')}
               </button>
@@ -490,6 +495,77 @@ export default function App() {
                 <span>&#8595;</span>
               </div>
             </div>
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  // ── STEP: EMAIL CAPTURE ──
+  if (step === 'emailCapture') {
+    function handleEmailContinue() {
+      const email = form.email.trim()
+      if (!email) {
+        setEmailError(lang === 'ro' ? 'Email-ul este obligatoriu.' : 'Email is required.')
+        return
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setEmailError(lang === 'ro' ? 'Adresa de email nu este valida.' : 'Email address is not valid.')
+        return
+      }
+      setEmailError('')
+      setStep('interview')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+
+    return (
+      <>
+        <CursorGlow />
+        {musicPlayer}
+        {loginModal}
+        <LangToggle />
+        <div className="page">
+          <button className="page-back-btn" onClick={() => { setStep('welcome'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} title="Inapoi">&#8592;</button>
+          <div className="container success-wrap">
+            <Reveal>
+              <section className="card interview-card" style={{ maxWidth: 480, margin: '0 auto' }}>
+                <div style={{ textAlign: 'center', padding: '24px 0 8px' }}>
+                  <div style={{ fontSize: '3rem', marginBottom: 12 }}>&#9993;</div>
+                  <h1 style={{ fontSize: '1.6rem', marginBottom: 8 }}>
+                    {lang === 'ro' ? 'Inainte sa incepem' : 'Before we start'}
+                  </h1>
+                  <p className="interview-subtitle" style={{ maxWidth: 400, margin: '0 auto 24px', fontSize: '0.95rem' }}>
+                    {lang === 'ro'
+                      ? 'Introdu adresa ta de email ca sa putem salva progresul si sa te contactam.'
+                      : 'Enter your email so we can save your progress and contact you.'}
+                  </p>
+                </div>
+                <div style={{ padding: '0 8px 24px' }}>
+                  <label style={{ display: 'block', marginBottom: 6, fontSize: '0.85rem', color: 'var(--ash)' }}>
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    autoComplete="email"
+                    inputMode="email"
+                    value={form.email}
+                    onChange={(e) => { updateField('email', e.target.value); setEmailError('') }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleEmailContinue() }}
+                    placeholder="name@email.com"
+                    style={{ width: '100%', boxSizing: 'border-box' }}
+                    autoFocus
+                  />
+                  {emailError && <div className="error" style={{ marginTop: 6 }}>{emailError}</div>}
+                  <button
+                    className="btn btn-primary"
+                    style={{ width: '100%', marginTop: 20 }}
+                    onClick={handleEmailContinue}
+                  >
+                    {lang === 'ro' ? 'Continua' : 'Continue'} &#8594;
+                  </button>
+                </div>
+              </section>
+            </Reveal>
           </div>
         </div>
       </>
