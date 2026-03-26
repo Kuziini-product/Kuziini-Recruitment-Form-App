@@ -93,7 +93,7 @@ export default async function handler(req, res) {
           from: `"Echipa Kuziini" <${fromEmail}>`,
           to: formData.email,
           subject: 'Multumim pentru aplicarea ta - Kuziini Recruitment',
-          html: buildThankYouEmail(formData.fullName),
+          html: buildThankYouEmail(formData.fullName, formData.hasCv),
         })
       }
     } catch (emailErr) {
@@ -176,7 +176,21 @@ function buildEmailHtml(form, answers, score, maxScore, classification, label, c
   </div>`
 }
 
-function buildThankYouEmail(name) {
+function buildThankYouEmail(name, hasCv) {
+  const cvSection = !hasCv ? `
+      <div style="background:#fef3c7;border:1px solid #f59e0b;border-radius:10px;padding:24px;margin:0 0 24px;text-align:center;">
+        <p style="margin:0 0 8px;font-size:15px;color:#92400e;font-weight:600;">
+          Stiai ca aplicantii cu CV au cu 90% sanse mai mari de promovare la interviu?
+        </p>
+        <p style="margin:0 0 16px;font-size:14px;color:#78350f;">
+          Iti recomandam sa incarci CV-ul pentru a-ti maximiza sansele.
+        </p>
+        <a href="https://kuziini-recruitment.vercel.app"
+           style="display:inline-block;background:#c9a84c;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:15px;">
+          Incarca CV-ul tau
+        </a>
+      </div>` : ''
+
   return `
   <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
     <div style="background:#111827;padding:32px;text-align:center;border-radius:12px 12px 0 0;">
@@ -191,6 +205,7 @@ function buildThankYouEmail(name) {
       <p style="font-size:16px;color:#374151;line-height:1.7;margin:0 0 16px;">
         Vom evalua solicitarea ta si vom reveni cu un raspuns in cel mai scurt timp.
       </p>
+      ${cvSection}
       <p style="font-size:16px;color:#374151;line-height:1.7;margin:0 0 24px;">
         Iti dorim o zi frumoasa!
       </p>

@@ -519,6 +519,7 @@ export default function App() {
           onComplete={handleInterviewComplete}
           onBack={handleInterviewBack}
           lang={lang}
+          isAdmin={isAdminSession}
         />
       </>
     )
