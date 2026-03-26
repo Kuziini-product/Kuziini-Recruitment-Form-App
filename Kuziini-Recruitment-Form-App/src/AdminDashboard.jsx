@@ -111,45 +111,64 @@ function generateProfile(a) {
 function ProfileCard({ applicant }) {
   const p = generateProfile(applicant)
   const scoreColor = p.finalScore >= 7 ? '#16a34a' : p.finalScore >= 4 ? '#ca8a04' : '#dc2626'
+  const [profileOpen, setProfileOpen] = useState(false)
 
   return (
     <div className="ai-profile">
-      <div className="ai-profile-header">
+      <div className="ai-profile-header collapsible-header" onClick={() => setProfileOpen(!profileOpen)}>
         <h3>Profil AI — Analiza Psihologica &amp; Profesionala</h3>
-        <div className="ai-score" style={{ background: scoreColor }}>
-          {p.finalScore}/10
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div className="ai-score" style={{ background: scoreColor }}>
+            {p.finalScore}/10
+          </div>
+          <span className={`collapsible-arrow ${profileOpen ? 'open' : ''}`}>▶</span>
         </div>
       </div>
 
-      {p.personality.length > 0 && (
-        <div className="ai-section">
-          <h4>🧠 Profil Psihologic</h4>
-          <ul>{p.personality.map((t, i) => <li key={i}>{t}</li>)}</ul>
-        </div>
-      )}
+      {profileOpen && <>
+        {p.personality.length > 0 && (
+          <div className="ai-section">
+            <h4>🧠 Profil Psihologic</h4>
+            <ul>{p.personality.map((t, i) => <li key={i}>{t}</li>)}</ul>
+          </div>
+        )}
 
-      {p.professional.length > 0 && (
-        <div className="ai-section">
-          <h4>💼 Profil Profesional</h4>
-          <ul>{p.professional.map((t, i) => <li key={i}>{t}</li>)}</ul>
-        </div>
-      )}
+        {p.professional.length > 0 && (
+          <div className="ai-section">
+            <h4>💼 Profil Profesional</h4>
+            <ul>{p.professional.map((t, i) => <li key={i}>{t}</li>)}</ul>
+          </div>
+        )}
 
-      {p.risks.length > 0 && (
-        <div className="ai-section ai-risks">
-          <h4>⚠️ Semnale de atentie</h4>
-          <ul>{p.risks.map((t, i) => <li key={i}>{t}</li>)}</ul>
-        </div>
-      )}
+        {p.risks.length > 0 && (
+          <div className="ai-section ai-risks">
+            <h4>⚠️ Semnale de atentie</h4>
+            <ul>{p.risks.map((t, i) => <li key={i}>{t}</li>)}</ul>
+          </div>
+        )}
 
-      <div className="ai-tags">
-        {applicant.music_genre && <span className="ai-tag">🎵 {applicant.music_genre}</span>}
-        {applicant.gender && <span className="ai-tag">👤 {applicant.gender}</span>}
-        {applicant.has_cv && <span className="ai-tag ai-tag-good">📄 CV atasat</span>}
-        {applicant.has_photo && <span className="ai-tag ai-tag-good">📷 Foto</span>}
-        {applicant.tour_visited && <span className="ai-tag ai-tag-good">🏠 Tur 360° ({applicant.tour_time_seconds > 0 ? `${Math.floor(applicant.tour_time_seconds/60)}m ${applicant.tour_time_seconds%60}s` : 'vizitat'})</span>}
-        {applicant.attempt_number > 1 && <span className="ai-tag ai-tag-warn">🔄 Re-aplicare #{applicant.attempt_number}</span>}
+        <div className="ai-tags">
+          {applicant.music_genre && <span className="ai-tag">🎵 {applicant.music_genre}</span>}
+          {applicant.gender && <span className="ai-tag">👤 {applicant.gender}</span>}
+          {applicant.has_cv && <span className="ai-tag ai-tag-good">📄 CV atasat</span>}
+          {applicant.has_photo && <span className="ai-tag ai-tag-good">📷 Foto</span>}
+          {applicant.tour_visited && <span className="ai-tag ai-tag-good">🏠 Tur 360° ({applicant.tour_time_seconds > 0 ? `${Math.floor(applicant.tour_time_seconds/60)}m ${applicant.tour_time_seconds%60}s` : 'vizitat'})</span>}
+          {applicant.attempt_number > 1 && <span className="ai-tag ai-tag-warn">🔄 Re-aplicare #{applicant.attempt_number}</span>}
+        </div>
+      </>}
+    </div>
+  )
+}
+
+function CollapsibleCard({ title, children, defaultOpen = false, className = '' }) {
+  const [open, setOpen] = useState(defaultOpen)
+  return (
+    <div className={`admin-card collapsible-card ${className}`}>
+      <div className="collapsible-header" onClick={() => setOpen(!open)}>
+        <h2>{title}</h2>
+        <span className={`collapsible-arrow ${open ? 'open' : ''}`}>▶</span>
       </div>
+      {open && <div className="collapsible-body">{children}</div>}
     </div>
   )
 }
@@ -499,10 +518,9 @@ export default function AdminDashboard({ onExit, onHome }) {
               </div>
             </div>
 
-            {/* ════════ AVG PER QUESTION ════════ */}
+            {/* ════════ AVG PER QUESTION (collapsible) ════════ */}
             {stats.avgByQuestion.length > 0 && (
-              <div className="admin-card">
-                <h2>Scor mediu per intrebare</h2>
+              <CollapsibleCard title={`Scor mediu per intrebare (${stats.avgByQuestion.length})`}>
                 <div className="question-stats">
                   {stats.avgByQuestion.map((q, i) => (
                     <div key={i} className="question-stat-row">
@@ -514,7 +532,7 @@ export default function AdminDashboard({ onExit, onHome }) {
                     </div>
                   ))}
                 </div>
-              </div>
+              </CollapsibleCard>
             )}
           </>
         )}
@@ -665,8 +683,7 @@ export default function AdminDashboard({ onExit, onHome }) {
 
                       <ProfileCard applicant={expandedData} />
 
-                      <div className="detail-answers">
-                        <h3>Raspunsuri ({expandedData.interview_score}/{expandedData.max_score} puncte)</h3>
+                      <CollapsibleCard title={`Raspunsuri (${expandedData.interview_score}/${expandedData.max_score} puncte)`}>
                         <div className="answers-grid">
                           {expandedData.interview_answers.map((ans, i) => (
                             <div key={i} className="answer-card">
@@ -680,7 +697,7 @@ export default function AdminDashboard({ onExit, onHome }) {
                             </div>
                           ))}
                         </div>
-                      </div>
+                      </CollapsibleCard>
 
                       <div className="applicant-actions">
                         <button
@@ -766,9 +783,8 @@ export default function AdminDashboard({ onExit, onHome }) {
           )
         })()}
 
-        {/* ════════ SETARI ════════ */}
-        <div className="admin-card">
-          <h2>Setari</h2>
+        {/* ════════ SETARI (collapsible) ════════ */}
+        <CollapsibleCard title="Setari">
           <div className="admin-settings">
             <h3 className="settings-section-title">Notificari</h3>
             <div className="settings-row">
@@ -835,7 +851,7 @@ export default function AdminDashboard({ onExit, onHome }) {
               {settingsSaved && <span className="settings-saved">Salvat!</span>}
             </div>
           </div>
-        </div>
+        </CollapsibleCard>
 
       </div>
     </div>

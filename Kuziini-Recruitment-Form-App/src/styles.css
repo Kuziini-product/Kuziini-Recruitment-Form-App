@@ -2035,6 +2035,53 @@ body.admin-active::after {
   letter-spacing: 0.02em;
 }
 
+/* ── Collapsible cards ── */
+.collapsible-card {
+  padding: 0 !important;
+}
+.collapsible-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 20px 32px;
+  user-select: none;
+  transition: background 0.2s;
+  border-radius: 12px;
+}
+.collapsible-header:hover {
+  background: #f9fafb;
+}
+.collapsible-header h2 {
+  margin: 0 !important;
+}
+.collapsible-arrow {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+.collapsible-arrow.open {
+  transform: rotate(90deg);
+}
+.collapsible-body {
+  padding: 0 32px 24px;
+  animation: collapseFadeIn 0.25s ease;
+}
+@keyframes collapseFadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Also apply collapsible style to AI profile header */
+.ai-profile .collapsible-header {
+  padding: 16px;
+  border-radius: 10px;
+}
+.ai-profile .collapsible-header:hover {
+  background: rgba(0,0,0,0.03);
+}
+
 /* Classification distribution */
 .class-distribution {
   display: grid;
