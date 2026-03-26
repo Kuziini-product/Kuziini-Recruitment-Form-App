@@ -473,14 +473,14 @@ export default function AdminDashboard({ onExit, onHome }) {
 
         {/* ════════ TOTI APLICANTII ════════ */}
         <div className="admin-card">
-          <h2>Toti aplicantii ({applicants.length})</h2>
-          {applicants.length === 0 ? (
+          <h2>Aplicanti completi ({applicants.filter(a => a.status !== 'partial' && a.status !== 'quit').length})</h2>
+          {applicants.filter(a => a.status !== 'partial' && a.status !== 'quit').length === 0 ? (
             <p style={{ textAlign: 'center', color: '#9ca3af', padding: 40 }}>
               Niciun aplicant inca. Datele vor aparea dupa prima aplicare completata.
             </p>
           ) : (
             <div className="applicants-list">
-              {applicants.map((a) => (
+              {applicants.filter(a => a.status !== 'partial' && a.status !== 'quit').map((a) => (
                 <div key={a.id} className="applicant-row-wrap">
                   <div className="applicant-row" onClick={() => toggleDetail(a.id)}>
                     <div className="applicant-main">
@@ -617,6 +617,73 @@ export default function AdminDashboard({ onExit, onHome }) {
             </div>
           )}
         </div>
+
+        {/* ════════ APLICANTI PARTIALI (au renuntat) ════════ */}
+        {(() => {
+          const partials = applicants.filter(a => a.status === 'partial' || a.status === 'quit')
+          if (partials.length === 0) return null
+          return (
+            <div className="admin-card partial-card">
+              <h2>Aplicanti care au renuntat ({partials.length})</h2>
+              <div className="applicants-list">
+                {partials.map((a) => (
+                  <div key={a.id} className="applicant-row-wrap partial-row">
+                    <div className="applicant-row" onClick={() => toggleDetail(a.id)}>
+                      <div className="applicant-main">
+                        <span className="class-badge-sm" style={{ background: a.status === 'quit' ? '#dc2626' : '#f59e0b' }}>
+                          {a.status === 'quit' ? 'X' : '⏸'}
+                        </span>
+                        <div className="applicant-name-col">
+                          <strong>{a.full_name}</strong>
+                          <span className="applicant-sub">
+                            <a href={`mailto:${a.email}`} onClick={(e) => e.stopPropagation()}>{a.email}</a>
+                            {' | '}
+                            <a href={`https://wa.me/${(a.phone || '').replace(/\D/g, '').replace(/^0/, '40')}`} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>{a.phone}</a>
+                          </span>
+                        </div>
+                      </div>
+                      <div className="applicant-stats">
+                        <div className="applicant-stat">
+                          <span className="applicant-stat-label">Status</span>
+                          <span className="applicant-stat-val" style={{ color: a.status === 'quit' ? '#dc2626' : '#f59e0b' }}>
+                            {a.status === 'quit' ? 'Renuntat' : 'Partial'}
+                          </span>
+                        </div>
+                        <div className="applicant-stat">
+                          <span className="applicant-stat-label">Data</span>
+                          <span className="applicant-stat-val">{new Date(a.created_at).toLocaleDateString('ro-RO')}</span>
+                        </div>
+                      </div>
+                      <span className="applicant-expand">{expandedId === a.id ? '▲' : '▼'}</span>
+                    </div>
+                    {expandedId === a.id && expandedData && (
+                      <div className="applicant-detail">
+                        <div className="detail-grid">
+                          <div className="detail-item"><span>Oras</span><strong>{expandedData.city || '-'}</strong></div>
+                          <div className="detail-item"><span>Exp. Corpus</span><strong>{expandedData.corpus_years || '-'} ani</strong></div>
+                          <div className="detail-item"><span>Rol</span><strong>{expandedData.current_role || '-'}</strong></div>
+                          <div className="detail-item"><span>Salariu</span><strong>{expandedData.expected_salary || '-'}</strong></div>
+                        </div>
+                        {expandedData.motivation && expandedData.status === 'quit' && (
+                          <div className="detail-motivation">
+                            <h3>Motivul renuntarii</h3>
+                            <p>{expandedData.motivation}</p>
+                          </div>
+                        )}
+                        <div className="applicant-actions">
+                          <button className="btn btn-small btn-delete"
+                            onClick={(e) => { e.stopPropagation(); deleteApplicant(expandedData.id, expandedData.full_name) }}>
+                            🗑️ Sterge
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        })()}
 
         {/* ════════ SETARI ════════ */}
         <div className="admin-card">

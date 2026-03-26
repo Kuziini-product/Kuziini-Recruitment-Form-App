@@ -200,13 +200,25 @@ export default function MiniInterview({ formData, cvFile, startTime, onComplete,
     submitAll(answers, null)
   }
 
+  // Save partial + send abandon email when user quits
+  async function savePartialAndQuit() {
+    try {
+      await fetch('/api/partial', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ formData }),
+      })
+    } catch {}
+    onBack()
+  }
+
   function handleSubmitWithUpload() {
     submitAll(answers, portfolioFile)
   }
 
   function handlePrev() {
     if (currentQ === 0) {
-      onBack()
+      savePartialAndQuit()
       return
     }
     setAnswers(answers.slice(0, -1))

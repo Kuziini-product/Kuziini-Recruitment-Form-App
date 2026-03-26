@@ -2742,6 +2742,21 @@ body.admin-active::after {
   border-color: #dc2626 !important;
 }
 
+/* ── Partial applicants card ── */
+
+.partial-card {
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+
+.partial-card h2 {
+  color: #92400e !important;
+}
+
+.partial-row {
+  border-color: #fde68a;
+}
+
 /* ── AI Profile Card ── */
 
 .ai-profile {

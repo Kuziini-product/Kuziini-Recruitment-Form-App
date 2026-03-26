@@ -49,6 +49,9 @@ export default async function handler(req, res) {
           RETURNING id
         `
         insertedId = row.id
+
+        // Delete any partial entries for this email (they completed now)
+        await sql`DELETE FROM applicants WHERE email = ${formData.email} AND status = 'partial'`
       } catch (dbErr) {
         console.error('DB save failed:', dbErr.message)
       }
