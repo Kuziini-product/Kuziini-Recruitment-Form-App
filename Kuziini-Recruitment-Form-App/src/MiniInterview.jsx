@@ -375,19 +375,14 @@ export default function MiniInterview({ formData, cvFile, startTime, onComplete,
     <div className="page">
       {isAdmin && (
         <button className="page-next-btn" onClick={() => {
-          // Skip to next question or submit with dummy answers
-          const remaining = allQuestions.slice(currentQ)
-          const dummyAnswers = [...answers]
-          remaining.forEach((rq) => {
-            if (rq.type === 'hearts') {
-              dummyAnswers.push({ question: rq.question, selectedAnswer: '3/' + rq.maxHearts + ' inimioare', points: 3, maxPoints: rq.maxHearts * rq.pointsPerHeart, type: 'hearts' })
-            } else if (rq.type === 'hobby') {
-              dummyAnswers.push({ question: rq.question, selectedAnswer: 'Sport', points: 2, maxPoints: 2, type: 'hobby' })
-            } else {
-              dummyAnswers.push({ question: rq.question, selectedAnswer: rq.options[0]?.text || '-', points: rq.options[0]?.points || 0, maxPoints: Math.max(...rq.options.map(o => o.points)), type: 'choice' })
-            }
+          // Admin skip — go to success page WITHOUT saving to DB
+          onComplete({
+            score: 0,
+            maxScore: TOTAL_MAX_SCORE,
+            classification: 'ADMIN',
+            classificationLabel: 'Admin preview — nu se salveaza',
+            answers: [],
           })
-          submitAll(dummyAnswers, null)
         }} title="Sari la final (admin)">&#8594;</button>
       )}
       <div className="container success-wrap">
