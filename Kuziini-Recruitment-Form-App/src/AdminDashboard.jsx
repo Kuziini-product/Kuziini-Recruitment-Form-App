@@ -180,7 +180,7 @@ export default function AdminDashboard({ onExit, onHome }) {
   const [expandedData, setExpandedData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [pushEnabled, setPushEnabled] = useState(false)
-  const [lastCount, setLastCount] = useState(0)
+  const [unseenCount, setUnseenCount] = useState(0)
   const [newAlert, setNewAlert] = useState(false)
 
   // Register service worker + check notification permission
@@ -191,54 +191,70 @@ export default function AdminDashboard({ onExit, onHome }) {
     setPushEnabled(Notification.permission === 'granted')
   }, [])
 
-  // Poll for new applicants every 30s
+  // When stats load, calculate unseen applicants
   useEffect(() => {
     if (!stats) return
-    setLastCount(stats.total)
+    const lastSeen = parseInt(localStorage.getItem('kuziini_last_seen_count') || '0')
+    const unseen = Math.max(0, stats.total - lastSeen)
+    setUnseenCount(unseen)
 
+    // Set badge on app icon
+    if (unseen > 0) {
+      if ('setAppBadge' in navigator) navigator.setAppBadge(unseen).catch(() => {})
+      document.title = `(${unseen}) Kuziini Admin`
+    }
+  }, [stats])
+
+  // Poll for new applicants every 20s
+  useEffect(() => {
     const interval = setInterval(async () => {
       try {
         const res = await fetch('/api/admin/stats')
         const newStats = await res.json()
-        if (newStats.total > lastCount) {
-          const newCount = newStats.total - lastCount
+        const lastSeen = parseInt(localStorage.getItem('kuziini_last_seen_count') || '0')
+        const unseen = Math.max(0, newStats.total - lastSeen)
+
+        if (unseen > unseenCount) {
+          setUnseenCount(unseen)
           setNewAlert(true)
-          setLastCount(newStats.total)
+          setTimeout(() => setNewAlert(false), 5000)
 
           // Browser notification
           if (Notification.permission === 'granted') {
             new Notification('Kuziini Recruitment', {
-              body: `Aplicare noua! Total: ${newStats.total} aplicanti.`,
+              body: `${unseen} aplicant${unseen > 1 ? 'i' : ''} nou${unseen > 1 ? 'i' : ''}!`,
               icon: '/icon-192.png',
-              badge: '/icon-192.png',
-              tag: 'kuziini-new-' + newStats.total,
             })
           }
 
-          // Badge on app icon (desktop PWA)
-          if ('setAppBadge' in navigator) {
-            navigator.setAppBadge(newCount).catch(() => {})
-          }
+          // Badge
+          if ('setAppBadge' in navigator) navigator.setAppBadge(unseen).catch(() => {})
+          document.title = `(${unseen}) Kuziini Admin`
 
-          // Update page title with count
-          document.title = `(${newCount}) Kuziini Recruitment Admin`
-
-          // Auto-refresh data
           loadData()
-          setTimeout(() => setNewAlert(false), 5000)
         }
       } catch {}
-    }, 30000)
+    }, 20000)
 
     return () => clearInterval(interval)
-  }, [stats, lastCount])
+  }, [unseenCount])
+
+  // Mark all as seen (clear badge)
+  function markAllSeen() {
+    if (stats) {
+      localStorage.setItem('kuziini_last_seen_count', String(stats.total))
+      setUnseenCount(0)
+      if ('clearAppBadge' in navigator) navigator.clearAppBadge().catch(() => {})
+      document.title = 'Kuziini Admin'
+    }
+  }
 
   async function enableNotifications() {
     if (!('Notification' in window)) return alert('Browser-ul nu suporta notificari.')
     const perm = await Notification.requestPermission()
     if (perm === 'granted') {
       setPushEnabled(true)
-      new Notification('Kuziini Recruitment', { body: 'Notificarile sunt activate! Vei fi anuntat la fiecare aplicare noua.', icon: '/logo-kuziini.png' })
+      new Notification('Kuziini Recruitment', { body: 'Notificarile sunt activate!', icon: '/icon-192.png' })
     }
   }
 
@@ -290,9 +306,6 @@ export default function AdminDashboard({ onExit, onHome }) {
 
   async function loadData() {
     setLoading(true)
-    // Clear badge when viewing data
-    if ('clearAppBadge' in navigator) navigator.clearAppBadge().catch(() => {})
-    document.title = 'Kuziini Recruitment Admin'
     try {
       const [statsRes, applicantsRes, bestRes] = await Promise.all([
         fetch(`${API}/api/admin/stats`),
@@ -358,10 +371,15 @@ export default function AdminDashboard({ onExit, onHome }) {
           </div>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             {newAlert && <span className="new-applicant-alert">Aplicant nou!</span>}
+            {unseenCount > 0 && (
+              <button className="btn btn-small btn-notif" onClick={markAllSeen}>
+                🔴 {unseenCount} nou{unseenCount > 1 ? 'i' : ''} — Marcheaza vazut
+              </button>
+            )}
             {!pushEnabled ? (
-              <button className="btn btn-small btn-notif" onClick={enableNotifications}>🔔 Activeaza notificari</button>
+              <button className="btn btn-small" onClick={enableNotifications}>🔔 Activeaza notificari</button>
             ) : (
-              <span className="notif-active-badge">🔔 Notificari active</span>
+              <span className="notif-active-badge">🔔 Active</span>
             )}
             <button className="btn btn-small" onClick={loadData}>Reincarca</button>
             {onHome && <button className="btn btn-small" onClick={onHome}>🏠 Home</button>}
