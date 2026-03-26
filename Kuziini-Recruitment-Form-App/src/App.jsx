@@ -197,6 +197,32 @@ function AdminLogin({ onSuccess, onCancel }) {
 export default function App() {
   const [isAdmin, setIsAdmin] = useState(() => localStorage.getItem('kuziini_admin') === 'true')
   const [showLogin, setShowLogin] = useState(false)
+  const [installPrompt, setInstallPrompt] = useState(null)
+  const [installed, setInstalled] = useState(false)
+
+  // PWA install
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {})
+    }
+    function onBeforeInstall(e) {
+      e.preventDefault()
+      setInstallPrompt(e)
+    }
+    window.addEventListener('beforeinstallprompt', onBeforeInstall)
+    window.addEventListener('appinstalled', () => setInstalled(true))
+    // Check if already installed
+    if (window.matchMedia('(display-mode: standalone)').matches) setInstalled(true)
+    return () => window.removeEventListener('beforeinstallprompt', onBeforeInstall)
+  }, [])
+
+  async function handleInstall() {
+    if (!installPrompt) return
+    installPrompt.prompt()
+    const result = await installPrompt.userChoice
+    if (result.outcome === 'accepted') setInstalled(true)
+    setInstallPrompt(null)
+  }
 
   function loginAdmin() {
     localStorage.setItem('kuziini_admin', 'true')
@@ -369,6 +395,15 @@ export default function App() {
               >
                 Incepe aplicarea
               </button>
+
+              {installPrompt && !installed && (
+                <button className="install-btn" onClick={handleInstall}>
+                  &#128229; Instaleaza pe desktop
+                </button>
+              )}
+              {installed && (
+                <span className="install-done">&#10003; Aplicatie instalata</span>
+              )}
 
               <div className="welcome-scroll-hint">
                 <span>&#8595;</span>
