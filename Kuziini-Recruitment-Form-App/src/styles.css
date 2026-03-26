@@ -3366,6 +3366,36 @@ body.admin-active::after {
   }
 
   .genre-selector {
-    flex-direction: column;
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .genre-selector .genre-btn {
+    padding: 10px 8px;
+  }
+
+  .genre-selector .genre-icon {
+    font-size: 1.2rem;
+  }
+
+  .genre-selector .genre-label {
+    font-size: 0.6rem;
+  }
+
+  .genre-selector-welcome {
+    max-width: 300px;
+    gap: 8px;
+  }
+
+  .genre-selector-welcome .genre-btn {
+    padding: 10px 6px;
+  }
+
+  .genre-selector-welcome .genre-icon {
+    font-size: 1.1rem;
+  }
+
+  .genre-selector-welcome .genre-label {
+    font-size: 0.58rem;
   }
 }

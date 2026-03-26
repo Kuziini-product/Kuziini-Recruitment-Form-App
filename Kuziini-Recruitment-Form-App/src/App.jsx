@@ -401,9 +401,6 @@ export default function App() {
                   &#128229; Instaleaza pe desktop
                 </button>
               )}
-              {installed && (
-                <span className="install-done">&#10003; Aplicatie instalata</span>
-              )}
 
               <div className="welcome-scroll-hint">
                 <span>&#8595;</span>
