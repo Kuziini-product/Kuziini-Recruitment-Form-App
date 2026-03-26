@@ -45,6 +45,11 @@ self.addEventListener('push', (event) => {
       vibrate: [200, 100, 200],
       tag: 'kuziini-new-applicant',
       data: { url: data.url || '/' },
+    }).then(() => {
+      // Set badge on app icon
+      if (self.navigator && self.navigator.setAppBadge) {
+        self.navigator.setAppBadge(data.count || 1)
+      }
     })
   )
 })

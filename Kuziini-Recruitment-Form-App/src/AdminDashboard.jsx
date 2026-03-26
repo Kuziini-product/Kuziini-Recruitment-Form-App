@@ -201,15 +201,28 @@ export default function AdminDashboard({ onExit, onHome }) {
         const res = await fetch('/api/admin/stats')
         const newStats = await res.json()
         if (newStats.total > lastCount) {
+          const newCount = newStats.total - lastCount
           setNewAlert(true)
           setLastCount(newStats.total)
+
           // Browser notification
           if (Notification.permission === 'granted') {
             new Notification('Kuziini Recruitment', {
               body: `Aplicare noua! Total: ${newStats.total} aplicanti.`,
-              icon: '/logo-kuziini.png',
+              icon: '/icon-192.png',
+              badge: '/icon-192.png',
+              tag: 'kuziini-new-' + newStats.total,
             })
           }
+
+          // Badge on app icon (desktop PWA)
+          if ('setAppBadge' in navigator) {
+            navigator.setAppBadge(newCount).catch(() => {})
+          }
+
+          // Update page title with count
+          document.title = `(${newCount}) Kuziini Recruitment Admin`
+
           // Auto-refresh data
           loadData()
           setTimeout(() => setNewAlert(false), 5000)
@@ -277,6 +290,9 @@ export default function AdminDashboard({ onExit, onHome }) {
 
   async function loadData() {
     setLoading(true)
+    // Clear badge when viewing data
+    if ('clearAppBadge' in navigator) navigator.clearAppBadge().catch(() => {})
+    document.title = 'Kuziini Recruitment Admin'
     try {
       const [statsRes, applicantsRes, bestRes] = await Promise.all([
         fetch(`${API}/api/admin/stats`),
